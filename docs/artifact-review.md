@@ -28,12 +28,18 @@ what it claims to be.
 ### Flaw 1 — in `docs/backlog.md`
 
 **Which item:**
+backlog.md US-1.4
 
-**What's wrong with it:**
-
+**What's wrong with it:**  
 **Which INVEST letter(s) it violates, and how:**
+N: This story is not negotiable
+V: This is too subjective
+T: This is too subjective to test
+
 
 **My repaired version:**
+
+Pick someone who will benefit in measurable terms.
 
 ```
 As a ...,
@@ -49,21 +55,28 @@ Acceptance Criteria
 
 ### Flaw 2 — in `docs/definition-of-done.md`
 
-**Which checkbox:**
+**Which checkbox:**  
+- [ ] The code is well written and easy for someone else to understand
 
 **Why it can't actually be checked:**
+This checkbox is not measurable by a machine and based on opinion.
 
 **My replacement, phrased so that it can be:**
+- [ ] Every class has a comment to what it is used for
+
 
 ---
 
 ### Flaw 3 — in `docs/sprint-01-plan.md`
 
-**Which item:**
+**Which item:**  
+I might get busy this week
 
-**Why it isn't really what the document calls it:**
+**Why it isn't really what the document calls it:**  
+This is not a risk that can be overcome.  
 
-**My repaired version, including a mitigation someone could actually act on:**
+**My repaired version, including a mitigation someone could actually act on:**  
+Set actual deadlines.
 
 ---
 
@@ -76,23 +89,29 @@ sentences.
 > nothing. "Its third criterion names an observable output — the same object reference — so
 > two people would always agree whether it passed" earns full marks.
 
-### Strong story 1: ______
+### Strong story 1: ______ S0.3 — The board shows the truth
 
-**INVEST letters it satisfies especially well:**
+**INVEST letters it satisfies especially well:**  
+TESTABLE: This user story is easy to test and has well defined functionality.  
 
-**What specifically makes its acceptance criteria checkable:**
+**What specifically makes its acceptance criteria checkable:**  
+There is a easy way to check for the board matching the actual locations of things.
 
-### Strong story 2: ______
+### Strong story 2: ______ US-1.2 — The same seed produces the same dungeon  
 
-**INVEST letters it satisfies especially well:**
+**INVEST letters it satisfies especially well:**  
+TESTABLE: This user story is easy to test and can be checked by a machine.  
 
-**What specifically makes its acceptance criteria checkable:**
+**What specifically makes its acceptance criteria checkable:**  
+It is very easy to test for.  
 
-### Strong story 3: ______
+### Strong story 3: ______ US-1.1 — Settings live in one place
 
-**INVEST letters it satisfies especially well:**
+**INVEST letters it satisfies especially well:**  
+NEGOTIABLE: This story has simple asks that can implemented different ways.  
 
-**What specifically makes its acceptance criteria checkable:**
+**What specifically makes its acceptance criteria checkable:**  
+It is simple functionality that can be tested for by a machine.  
 
 ---
 
@@ -104,13 +123,13 @@ acceptance criterion each piece satisfies.
 
 | What I'd expect in the diff | Which acceptance criterion it satisfies |
 |---|---|
-|  |  |
-|  |  |
-|  |  |
-|  |  |
+| Create the config.json file | AC#1 |
+| Create a config class to save and load game variables | AC#3 |
+| Create a main class  | AC#1 |
+| Make sure the config has a getInstance method | AC#1 |
 
 **One sentence: how did the acceptance criteria help you predict the shape of the work?**
-
+The acceptance criteria lists the code and files required.
 ---
 
 ## C4 — The bonus catch · up to +3 bonus
@@ -129,5 +148,7 @@ up the way it did.
 ## C5 — One honest question
 
 What is one thing about the Scrum process you still don't understand after this week? A good
-question here is worth more to me than a confident wrong answer.
+question here is worth more to me than a confident wrong answer.  
+It seems like a lot of extra work to setup the sprints and backlog, do solo devs usually go through this entire process?
+
 
