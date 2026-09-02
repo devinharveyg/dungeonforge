@@ -8,18 +8,18 @@
 
 ## 1. What went well?
 
-- 
+- All issues were closed in a relatively quick matter.
 
 ## 2. What slowed me down?
 
-- 
+- I had to install github cli for the seed-backlog script.
 
 ## 3. ONE thing I will do differently next sprint
 
 > One. Specific. Actionable. "Be more organised" is not actionable.
 > "Write the test before the implementation for at least one story" is.
 
-- 
+- I will refine my estimate time goals.
 
 ---
 
