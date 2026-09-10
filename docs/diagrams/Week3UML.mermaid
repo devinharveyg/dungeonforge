@@ -1,0 +1,199 @@
+classDiagram
+
+%% =========================================================
+%% CONFIG PACKAGE
+%% =========================================================
+
+namespace dungeonforge.config {
+
+    class GameConfig {
+        <<final>>
+        -GameConfig instance
+        -Map~String,Object~ settings
+
+        -GameConfig()
+        +static GameConfig getInstance()
+        -void loadDefaults()
+        +void loadFromClasspath(String resourceName)
+        +int getInt(String key)
+        +double getDouble(String key)
+        +long getSeed()
+        +static void resetForTests()
+    }
+
+    class Json {
+        <<final>>
+        -String s
+        -int i
+
+        -Json(String s)
+        +static Map~String,Object~ parseObject(String text)
+        -void ws()
+        -Object value()
+        -Map~String,Object~ object()
+        -List~Object~ array()
+        -String string()
+        -Double number()
+    }
+
+    class RandomSource {
+        <<final>>
+        -RandomSource instance
+        -Random rng
+        -long seed
+
+        -RandomSource()
+        +static RandomSource getInstance()
+        +int nextInt(int bound)
+        +int between(int low, int high)
+        +double nextDouble()
+        +T pick(List~T~ options)
+        +T pick(T[] options)
+        +long getSeed()
+        +void reseed(long newSeed)
+        +static void resetForTests()
+    }
+}
+
+%% =========================================================
+%% CORE PACKAGE
+%% =========================================================
+
+namespace dungeonforge.core {
+
+    class Entity {
+        <<abstract>>
+        #String name
+        #int hp
+        #int maxHp
+        #int attackPower
+        #int defense
+
+        #Entity(String name, int maxHp, int attackPower, int defense)
+        +String getName()
+        +int getHp()
+        +int getMaxHp()
+        +int getAttackPower()
+        +int getDefense()
+        +boolean isAlive()
+        +void takeDamage(int amount)
+        +void heal(int amount)
+        +String describe()*
+        +String toString()
+    }
+
+    class Player {
+        -int gold
+        -int xp
+
+        +Player(String name)
+        +int getGold()
+        +int getXp()
+        +void addGold(int g)
+        +void addXp(int x)
+        +double carryCapacity()
+        +String describe()
+    }
+
+    class Monster {
+        -String species
+        -int xpReward
+
+        +Monster(String species, int baseHp, int baseAttack, int xpReward)
+        +String getSpecies()
+        +int getXpReward()
+        +String describe()
+    }
+
+    class Room {
+        -static String[] FLAVORS
+        -String id
+        -String flavor
+        -List~Monster~ monsters
+
+        +Room(String id)
+        +String getId()
+        +String getFlavor()
+        +List~Monster~ getMonsters()
+        +void addMonster(Monster m)
+    }
+
+    class DungeonLevel {
+        -int depth
+        -List~Room~ rooms
+
+        +DungeonLevel(int depth)
+        +int getDepth()
+        +List~Room~ getRooms()
+        +void addRoom(Room r)
+    }
+
+    class GameWorld {
+        -Player player
+        -List~DungeonLevel~ levels
+
+        +GameWorld(Player player)
+        -void generate()
+        -Monster spawn(int depth)
+        +Player getPlayer()
+        +List~DungeonLevel~ getLevels()
+        +int totalMonsters()
+    }
+}
+
+%% =========================================================
+%% APPLICATION PACKAGE
+%% =========================================================
+
+namespace dungeonforge {
+
+    class Main {
+        <<final>>
+        +static String VERSION
+        -Main()
+
+        +static String banner()
+        +static void main(String[] args)
+    }
+}
+
+%% =========================================================
+%% INHERITANCE
+%% =========================================================
+
+Entity <|-- Player
+Entity <|-- Monster
+
+%% =========================================================
+%% DOMAIN COMPOSITION
+%% =========================================================
+
+GameWorld "1" *-- "1..*" DungeonLevel : contains
+DungeonLevel "1" *-- "0..*" Room : contains
+Room "1" *-- "0..*" Monster : contains
+
+%% GameWorld retains a reference to the Player supplied to it
+GameWorld "1" --> "1" Player : player
+
+%% =========================================================
+%% CONFIG / SERVICE DEPENDENCIES
+%% =========================================================
+
+GameWorld ..> GameConfig : reads dungeon settings
+GameWorld ..> RandomSource : generates dungeon
+
+Player ..> GameConfig : reads player settings
+Monster ..> RandomSource : generates stat variance
+Room ..> RandomSource : selects flavor
+RandomSource ..> GameConfig : gets initial seed
+GameConfig ..> Json : parses config.json
+
+%% =========================================================
+%% APPLICATION DEPENDENCIES
+%% =========================================================
+
+Main ..> Player : creates
+Main ..> GameWorld : creates
+Main ..> DungeonLevel : iterates
+Main ..> Room : iterates
+Main ..> Monster : iterates
