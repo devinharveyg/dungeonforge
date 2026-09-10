@@ -196,4 +196,6 @@ $ mvn test
 
 > What can the project do now that it could not do last week?
 
+The project can now load config values from a file, replicate its randomness, and test for functionality.
+
 

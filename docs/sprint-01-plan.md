@@ -62,9 +62,9 @@ remembering the next time your own sprint doesn't fit.
 
 | Story | Estimated | Actual hours | High, low, or about right? |
 |---|---|---|---|
-| US-1.1 | 3 | | |
-| US-1.2 | 3 | | |
-| US-1.3 | 2 | | |
+| US-1.1 | 3 | 3 | about right |
+| US-1.2 | 3 | 2 | low |
+| US-1.3 | 2 | 2 | about right |
 
 **Points completed:** ____ · **Sprint 0 velocity for comparison:** ____
 
@@ -72,4 +72,5 @@ remembering the next time your own sprint doesn't fit.
 
 > What can the project do now that it could not do last week?
 
+The project can now load config values from a file, replicate its randomness, and test for functionality.
 
