@@ -23,30 +23,33 @@ you built them this week. Your job is to defend the other six answers.
 
 | # | Class | What it does | Singleton? | Would a 2nd instance be a bug, or just unusual? Why? |
 |---|---|---|---|---|
-| 1 | `GameConfig` | Holds every tunable setting | | |
-| 2 | `RandomSource` | The one seeded RNG | | |
-| 3 | `Player` | The player character | | |
-| 4 | `MonsterFactory` (Wk 4) | Turns blueprints into monsters | | |
-| 5 | `EventBus` (Wk 5) | Publishes game events to subscribers | | |
-| 6 | `CommandHistory` (Wk 7) | The undo stack | | |
-| 7 | `SaveSystemFacade` (Wk 12) | Reads and writes save files | | |
-| 8 | `Logger` | Writes diagnostic output to a file | | |
+| 1 | `GameConfig` | Holds every tunable setting |x| |
+| 2 | `RandomSource` | The one seeded RNG |x| |
+| 3 | `Player` | The player character | |x|
+| 4 | `MonsterFactory` (Wk 4) | Turns blueprints into monsters | |x|
+| 5 | `EventBus` (Wk 5) | Publishes game events to subscribers |x| |
+| 6 | `CommandHistory` (Wk 7) | The undo stack | |x|
+| 7 | `SaveSystemFacade` (Wk 12) | Reads and writes save files | |x|
+| 8 | `Logger` | Writes diagnostic output to a file |x| |
 
 ## The three that will cause arguments
 
 Rows 5, 7 and 8 are the interesting ones, and reasonable engineers disagree about all three.
 Pick **one** of them and write a paragraph:
 
-**Which one:** ______
+**Which one:** __8___
 
 **The case FOR making it a Singleton:**
-
+Making the Logger a singleton would help ensure there is only one place to log output to.
+All logs would be unified to a single output.
 
 **The case AGAINST:**
+Avoiding the singleton pattern would allow for multiple different logs that save to unique output files.
 
 
 **What you would actually do in this project, and why:**
-
+I would start by using a singleton to make the initial logging implementation simpler.
+The singleton getInstance method is easier to use because it will instantiate itself.
 
 > There is no answer key for this paragraph. You are graded on whether you engaged with the
 > tension, not on which side you landed.
@@ -57,5 +60,8 @@ Your `GameConfig` has a method called `resetForTests()`. It exists only so that 
 undo the global state that the Singleton created.
 
 **In one or two sentences: what is that method telling you about the pattern?**
+
+The singleton pattern is destroyed by the reset method.
+The resetForTests method breaks the singleton pattern because it is not meant to be instantiated more than once.
 
 
