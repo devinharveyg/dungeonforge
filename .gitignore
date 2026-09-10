@@ -8,6 +8,7 @@ saves/
 .idea/
 *.iml
 *.iws
+.venv/
 .vscode/
 .settings/
 .classpath
