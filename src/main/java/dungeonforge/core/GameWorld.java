@@ -3,6 +3,8 @@ package dungeonforge.core;
 import dungeonforge.config.GameConfig;
 import dungeonforge.config.RandomSource;
 import dungeonforge.factory.MonsterFactory;
+import dungeonforge.factory.ThemeKit;
+import dungeonforge.factory.ThemeRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +23,15 @@ public class GameWorld {
 
     private final Player player;
     private final List<DungeonLevel> levels = new ArrayList<>();
+    private MonsterFactory monsterFactory = new MonsterFactory();
+    private final ThemeRegistry themes = new ThemeRegistry(monsterFactory);
+
 
     public MonsterFactory getMonsterFactory() {
         return monsterFactory;
     }
 
-    private MonsterFactory monsterFactory = new MonsterFactory();
+
 
     public GameWorld(Player player) {
         this.player = player;
@@ -40,14 +45,16 @@ public class GameWorld {
         int maxMonstersPerRoom = cfg.getInt("maxMonstersPerRoom");   // hardcoded
 
         for (int d = 1; d <= dungeonDepth; d++) {
-            DungeonLevel level = new DungeonLevel(d);
+            ThemeKit theme = themes.forDepth(d);
+            DungeonLevel level = new DungeonLevel(d, theme.themeName());
             for (int r = 0; r < roomsPerLevel; r++) {
                 Room room = new Room("L" + d + "R" + r);
+                room.setFlavor(theme.createRoomFlavor());
                 int count = RandomSource.getInstance().nextInt(maxMonstersPerRoom + 1);
                 for (int m = 0; m < count; m++) {
-                    String id = RandomSource.getInstance().pick(monsterFactory.idsForTheme("crypt"));
+
                     room.addMonster(
-                            monsterFactory.create(id, d)
+                            theme.createMonster(d)
                     );
                 }
                 level.addRoom(room);
