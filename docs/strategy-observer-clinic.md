@@ -53,11 +53,11 @@ type, or a `DangerMeter` that notices when your HP drops below 25%. Subscribe it
 
 | Question | Your answer |
 |---|---|
-| How many **new** files? | |
-| Did `Combat.java` change? | |
-| Did `EventBus.java` change? | |
-| Did any existing listener change? | |
-| Which files changed at all? | |
+| How many **new** files? | 1 |
+| Did `Combat.java` change? | no |
+| Did `EventBus.java` change? | no |
+| Did any existing listener change? | no |
+| Which files changed at all? | added 1, main has changes |
 
 **Paste `git diff --stat`:**
 
@@ -74,6 +74,13 @@ line, it's obvious, and it needs no `EventBus`, no `GameEvent`, and no `GameEven
 **Write a paragraph.** What does the direct call cost you that the bus does not? Give a
 *concrete* scenario — a change somebody might ask for — where the direct-call version forces
 you to edit `Combat` and the bus version does not.
+
+
+The direct call violates the open closed principle.  
+Using the event bus allows for extension without modifying the existing code.  
+The tight coupling associated with a direct call would make the code messier and more complicated.  
+The observer pattern allows for easy extension of functionality by creating separate classes.  
+
 
 > A good answer names a specific future feature. A great answer names one from this course's
 > remaining schedule.
@@ -97,6 +104,7 @@ Forge Golem changes tactics: aggressive -> skittish.
 object? Be precise. Its class? Its fields? Its identity? What *specifically* is different
 about it one instruction later?
 
+The strategy of the monster changed, not the class or identity.  
 
 **Then add a fifth strategy** of your own invention. How many existing files did you have to
 modify, and which?
@@ -110,6 +118,8 @@ holds one and delegates to it.
 
 **Without looking ahead, guess:** what could possibly distinguish them? You are not expected
 to be right. You're expected to have a hypothesis on record before Week 8 tells you.
+
+The state pattern and combatstrategy pattern differ in the ways data fields are composed and accessed.
 
 
 **And anything else that's still unclear:**
