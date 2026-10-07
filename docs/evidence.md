@@ -41,12 +41,29 @@ There is no good answer because of how tightly coupled the if/else chain is.
 **Paste your new `gameLoop()` in full. It should fit in a dozen lines:**
 
 ```java
+private static void gameLoop(CommandParser parser, GameContext ctx) {
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+        while (ctx.isRunning() && ctx.getPlayer().isAlive()) {
+            System.out.print("\n[HP " + ctx.getPlayer().getHp() + "/" + ctx.getPlayer().getMaxHp() + "] > ");
+            System.out.flush();
+
+            String line;
+            try { line = in.readLine(); } catch (Exception e) { break; }
+            if (line == null) break;
+            System.out.println();
+
+            Command command = parser.parse(line, ctx);
+            command.execute();
+        }
+    }
 
 ```
 
 **Paste the registry lines that add `drop` and its alias:**
 
 ```java
+register("drop", DropCommand::new);
 
 ```
 

@@ -1,5 +1,8 @@
 package dungeonforge;
 
+import dungeonforge.commands.Command;
+import dungeonforge.commands.CommandParser;
+import dungeonforge.commands.GameContext;
 import dungeonforge.core.Combat;
 import dungeonforge.core.DungeonLevel;
 import dungeonforge.core.GameWorld;
@@ -96,7 +99,10 @@ public final class Main {
             bus.subscribe(log);
             bus.subscribe(new ConsolePrinter());
 
-            gameLoop(world, player, bus, quests, achievements);
+            GameContext ctx = new GameContext(world, player, bus, new Combat(bus));
+            CommandParser cmds = new CommandParser(quests, achievements);
+
+            gameLoop(cmds, ctx);
 
         } catch (ArgumentParserException e) {
             parser.handleError(e);
@@ -107,131 +113,21 @@ public final class Main {
     /**
      * TODO(week 7): eleven verbs, one method, and no way to take anything back.
      */
-    private static void gameLoop(GameWorld world, Player player, EventBus bus,
-                                 QuestTracker quests, AchievementSystem achievements) {
+    private static void gameLoop(CommandParser parser, GameContext ctx) {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-        Combat combat = new Combat(bus);
-        Room here = world.startingRoom();
-        boolean running = true;
-
-        System.out.println(describe(world, here));
-
-        while (running && player.isAlive()) {
-            System.out.print("\n[HP " + player.getHp() + "/" + player.getMaxHp() + "] > ");
+        while (ctx.isRunning() && ctx.getPlayer().isAlive()) {
+            System.out.print("\n[HP " + ctx.getPlayer().getHp() + "/" + ctx.getPlayer().getMaxHp() + "] > ");
             System.out.flush();
 
             String line;
             try { line = in.readLine(); } catch (Exception e) { break; }
             if (line == null) break;
-            line = line.trim();
             System.out.println();
 
-            String verb = line.contains(" ") ? line.substring(0, line.indexOf(' ')) : line;
-            String rest = line.contains(" ") ? line.substring(line.indexOf(' ') + 1).trim() : "";
-            boolean tookATurn = false;
-
-            if (verb.isEmpty()) {
-                continue;
-
-            } else if (verb.equals("north") || verb.equals("south") || verb.equals("down")) {
-                if (here.hasLivingMonsters()) {
-                    System.out.println("  You cannot walk away with enemies still standing.");
-                } else {
-                    Room next = here.getExit(verb);
-                    if (next == null) {
-                        System.out.println("  There is no way " + verb + ".");
-                    } else {
-                        here = next;
-                        Combat.restAfterRoom(player);
-                        System.out.println(describe(world, here));
-                        tookATurn = true;
-                    }
-                }
-
-            } else if (verb.equals("attack")) {
-                Monster target = here.firstLivingIn();
-                if (target == null) {
-                    System.out.println("  Nothing here to attack.");
-                } else {
-                    combat.playerStrikes(player, target);
-                    tookATurn = true;
-                }
-
-            } else if (verb.equals("look")) {
-                System.out.println(describe(world, here));
-
-            } else if (verb.equals("take")) {
-                Item found = null;
-                for (Item i : here.getFloorItems()) {
-                    if (i.getName().toLowerCase().contains(rest.toLowerCase())) { found = i; break; }
-                }
-                if (found != null) {
-                    here.getFloorItems().remove(found);
-                } else if (here.getChest() != null) {
-                    for (Item i : here.getChest().getContents()) {
-                        if (i.getName().toLowerCase().contains(rest.toLowerCase())) { found = i; break; }
-                    }
-                    if (found != null) here.getChest().getContents().remove(found);
-                }
-                if (found == null) {
-                    System.out.println("  There is nothing like that here.");
-                } else {
-                    player.addItem(found);
-                    System.out.println("  You take " + found.getName() + ".");
-                    tookATurn = true;
-                }
-
-            } else if (verb.equals("use")) {
-                Item item = player.findItem(rest);
-                if (item == null) {
-                    System.out.println("  You are not carrying anything like that.");
-                } else if (item instanceof Potion p) {
-                    player.heal(p.getHealAmount());
-                    player.removeItem(item);
-                    System.out.println("  You drink " + p.getName() + ". HP " + player.getHp());
-                    tookATurn = true;
-                } else {
-                    System.out.println("  You cannot think of a use for " + item.getName() + ".");
-                }
-
-            } else if (verb.equals("inventory") || verb.equals("i")) {
-                if (player.getInventory().isEmpty()) {
-                    System.out.println("  You are carrying nothing.");
-                } else {
-                    for (Item i : player.getInventory()) System.out.println("    - " + i.describe());
-                }
-
-            } else if (verb.equals("quests")) {
-                for (Quest q : quests.getQuests()) System.out.println("  " + q);
-
-            } else if (verb.equals("achievements")) {
-                if (achievements.getUnlocked().isEmpty()) System.out.println("  (none yet)");
-                for (String a : achievements.getUnlocked()) System.out.println("  " + a);
-
-            } else if (verb.equals("status")) {
-                System.out.println("  " + player.describe());
-
-            } else if (verb.equals("help")) {
-                System.out.println("  north, south, down, attack, look, take <item>, use <item>,");
-                System.out.println("  inventory, quests, achievements, status, help, quit");
-
-            } else if (verb.equals("quit")) {
-                System.out.println("  You lay down your pack.");
-                running = false;
-
-            } else {
-                System.out.println("  You cannot '" + verb + "' here.");
-            }
-
-            if (tookATurn && player.isAlive()) {
-                combat.monsterTurns(player, here);
-            }
+            Command command = parser.parse(line, ctx);
+            command.execute();
         }
-
-        System.out.println();
-        System.out.println("  " + player.describe());
-        if (!player.isAlive()) System.out.println("  You die in the dark.");
     }
 
     private static String describe(GameWorld world, Room room) {
