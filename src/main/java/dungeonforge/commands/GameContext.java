@@ -39,11 +39,11 @@ public class GameContext {
     private final Player player;
     private final Combat combat;
 
-//    public CommandHistory getHistory() {
-//        return history;
-//    }
+    public CommandHistory getHistory() {
+        return history;
+    }
 
-//    private final CommandHistory history;
+    private final CommandHistory history;
 
     public void setCurrentRoom(Room currentRoom) {
         this.currentRoom = currentRoom;
@@ -58,12 +58,12 @@ public class GameContext {
     private boolean running = true;
 
 
-    public GameContext(GameWorld world, Player player, EventBus bus, Combat combat/*, CommandHistory history*/){
+    public GameContext(GameWorld world, Player player, EventBus bus, Combat combat, CommandHistory history){
         this.bus = bus;
         this.world = world;
         this.player = player;
         this.combat = combat;
-//        this.history = history;
+        this.history = history;
         this.currentRoom = world.startingRoom();
     }
 
