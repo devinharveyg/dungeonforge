@@ -1,12 +1,14 @@
 package dungeonforge.commands;
 
 import dungeonforge.events.GameEvent;
+import dungeonforge.items.Hourglass;
 import dungeonforge.items.Item;
 import dungeonforge.items.Potion;
 
 public class UseItemCommand extends AbstractCommand{
 
 
+    private boolean rewound = false;
 
     public UseItemCommand(GameContext ctx, String args) {
         super(ctx, args);
@@ -17,6 +19,20 @@ public class UseItemCommand extends AbstractCommand{
         Item item = player().findItem(args);
         if(item == null){
             bus().message("you do not have that to use");
+            return false;
+        }
+
+        if(item instanceof Hourglass hourglass){
+            if(!hourglass.hasCharges()){
+                bus().message("the hourglass is empty");
+                return false;
+            }
+            hourglass.spendCharges();
+            rewound = true;
+            bus().message("Sand runs backwards. the last action was undone");
+            if(!ctx.getHistory().undoLast()){
+                bus().message("there was nothing to take back");
+            }
             return false;
         }
 

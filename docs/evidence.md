@@ -90,16 +90,35 @@ register("drop", DropCommand::new);
 **Paste a `loot` that picks up three things, then an `undo` that puts them all back:**
 
 ```
+loot
+[HP 76/80] > 
+  you take Bone Shortsword
+  you take Bone Shortsword
+  you take Brave Shroud
 
+inventory
+[HP 76/80] > 
+  You are carrying: 
+     - Small Healing Draught [heals 22] (0.3kg, 20g)
+     - Chronomaster's hourglass [2 charges] (rewinds time)
+     - Bone Shortsword [dmg 6] (2.0kg, 50g)
+     - Bone Shortsword [dmg 6] (2.0kg, 50g)
+     - Brave Shroud [def 3] (3.0kg, 43g)
 ```
 
 **Paste the hourglass rewinding a turn, with `inventory` before and after:**
 
 ```
+use Chronomaster's hourglass
+[HP 76/80] > 
+  Sand runs backwards. the last action was undone
 
+i
+[HP 76/80] > 
+  you inventory is empty
 ```
 
-**How long did US-5.4 actually take you?** ____ minutes
+**How long did US-5.4 actually take you?** _30__ minutes
 
 ## 5. The replay
 
