@@ -1,0 +1,530 @@
+classDiagram
+direction TB
+
+%% =====================================================
+%% SINGLETON
+%% =====================================================
+namespace Singleton_Pattern {
+    class GameConfig {
+        <<singleton>>
+        -GameConfig instance$
+        -Map settings
+        -GameConfig()
+        +getInstance()$ GameConfig
+        +readResource(String)$ String
+        +getInt(String) int
+        +getDouble(String) double
+        +getSeed() long
+        +resetForTests()$
+    }
+    class RandomSource {
+        <<singleton>>
+        -RandomSource instance$
+        -Random rng
+        -long seed
+        -RandomSource()
+        +getInstance()$ RandomSource
+        +nextInt(int) int
+        +between(int, int) int
+        +nextDouble() double
+        +pick(List) T
+        +reseed(long)
+        +getSeed() long
+        +resetForTests()$
+    }
+    class Json {
+        <<utility>>
+        +parseObject(String)$ Map
+    }
+}
+
+%% =====================================================
+%% STRATEGY
+%% =====================================================
+namespace Strategy_Pattern {
+    class CombatStrategy {
+        <<interface>>
+        +chooseAction(Monster, Player, Room) Action
+        +name() String
+    }
+    class AggressiveStrategy
+    class RangedStrategy
+    class SkittishStrategy
+    class HealerStrategy
+    class Action {
+        -Type type
+        -Entity target
+        -String flavor
+        +wait(String)$ Action
+        +getType() Type
+        +getTarget() Entity
+        +getFlavor() String
+    }
+    class ActionType {
+        <<enumeration>>
+        ATTACK
+        RANGED_ATTACK
+        FLEE
+        HEAL_ALLY
+        WAIT
+    }
+}
+
+%% =====================================================
+%% OBSERVER
+%% =====================================================
+namespace Observer_Pattern {
+    class EventBus {
+        <<subject>>
+        -List listeners
+        +subscribe(GameEventListener)
+        +unsubscribe(GameEventListener)
+        +publish(GameEvent)
+        +message(String)
+        +listenerCount() int
+    }
+    class GameEventListener {
+        <<interface>>
+        +onEvent(GameEvent)
+    }
+    class GameEvent {
+        -EventType type
+        -Map payload
+        +of(EventType, Object...)$ GameEvent
+        +message(String)$ GameEvent
+        +getString(String) String
+        +getInt(String) int
+    }
+    class EventType {
+        <<enumeration>>
+        DAMAGE_DEALT
+        DAMAGE_TAKEN
+        MONSTER_DIED
+        MONSTER_FLED
+        MONSTER_HEALED
+        STRATEGY_CHANGED
+        XP_GAINED
+        GOLD_GAINED
+        LEVEL_ENTERED
+        ROOM_CLEARED
+        PLAYER_DIED
+        DELVE_SURVIVED
+        MESSAGE
+    }
+    class CombatLog {
+        -Deque lines
+        -int maxLines
+        +getLines() Deque
+        +clear()
+    }
+    class ConsolePrinter {
+        <<Main inner class>>
+        -CombatLog formatter
+    }
+    class QuestTracker {
+        -List quests
+        +getQuests() List
+        +completedCount() int
+    }
+    class Quest {
+        -String id
+        -EventType trigger
+        -int required
+        -int progress
+        +advance() boolean
+        +isComplete() boolean
+    }
+    class AchievementSystem {
+        -Set unlocked
+        -int kills
+        -int fled
+        -int deepestLevel
+        +getUnlocked() Set
+    }
+}
+
+%% =====================================================
+%% COMMAND (+ Memento-style undo, Macro/Composite)
+%% =====================================================
+namespace Command_Pattern {
+    class Command {
+        <<interface>>
+        +execute()
+        +undo()
+        +getDescription() String
+        +isUndoable() boolean
+        +endsTurn() boolean
+    }
+    class AbstractCommand {
+        <<abstract>>
+        #GameContext ctx
+        #String args
+        -boolean actuallyRan
+        -TurnSnapshot before
+        +execute()$ final
+        +undo()
+        #doExecute()* boolean
+    }
+    class AttackCommand
+    class TakeCommand
+    class DropCommand
+    class MoveCommand {
+        -String direction
+    }
+    class UseItemCommand {
+        -boolean rewound
+    }
+    class MacroCommand {
+        -List children
+        +endsTurn() false
+    }
+    class SimpleCommand {
+        -Body body
+    }
+    class NoCommand {
+        -String reason
+    }
+    class CommandHistory {
+        -Deque undoStack
+        -List replaying
+        -int maxDepth
+        +push(Command)
+        +undoLast() boolean
+        +replayLog() List
+    }
+    class TurnSnapshot {
+        <<memento>>
+        +capture(Player, Room)$ TurnSnapshot
+        +restore()
+    }
+    class CommandFactory {
+        <<interface>>
+        +create(GameContext, String) Command
+    }
+    class CommandParser {
+        -Map registry
+        -Map aliases
+        +register(String, CommandFactory)
+        +alias(String, String)
+        +parse(String, GameContext) Command
+        +makeLootMacro(GameContext) Command
+        +describeRoom(GameContext) String
+    }
+    class GameContext {
+        <<invoker context>>
+        -Room currentRoom
+        -boolean running
+        +runMonsterTurns()
+        +setCurrentRoom(Room)
+        +stop()
+    }
+}
+
+%% =====================================================
+%% SIMPLE FACTORY (idiom)
+%% =====================================================
+namespace Simple_Factory_Idiom {
+    class MonsterFactory {
+        -Map blueprints
+        +create(String, int) Monster
+        +idsForTheme(String) List
+        +bossIdFromTheme(String) String
+        +strategyFor(String)$ CombatStrategy
+    }
+    class MonsterDef {
+        +id
+        +name
+        +hp
+        +attack
+        +xp
+        +theme
+        +boss
+        +strategy
+    }
+}
+
+%% =====================================================
+%% ABSTRACT FACTORY
+%% =====================================================
+namespace Abstract_Factory_Pattern {
+    class ThemeKit {
+        <<interface>>
+        +themeName() String
+        +createMonster(int) Monster
+        +createBoss(int) Monster
+        +createLoot(int) Item
+        +createRoomFlavor() String
+    }
+    class CryptThemeKit
+    class ForgeThemeKit
+    class FrostThemeKit
+    class WinterfellThemeKit
+    class ThemeRegistry {
+        -List kits
+        +forDepth(int) ThemeKit
+        +themeNames() List
+    }
+}
+
+%% =====================================================
+%% FACTORY METHOD (+ Template Method in populate)
+%% =====================================================
+namespace Factory_Method_Pattern {
+    class RoomPopulator {
+        <<abstract>>
+        #ThemeKit theme
+        +populate(Room, int)$ final
+        #createEncounter(int)* List
+        #createChest(int) Chest
+        +kind()* String
+    }
+    class StandardRoomPopulator
+    class TreasureRoomPopulator
+    class BossRoomPopulator
+}
+
+%% =====================================================
+%% DOMAIN MODEL (supporting classes, no pattern)
+%% =====================================================
+namespace Domain_Model {
+    class Entity {
+        <<abstract>>
+        #String name
+        #int hp
+        #int maxHp
+        #int attackPower
+        #int defense
+        +takeDamage(int)
+        +heal(int)
+        +setHp(int)
+        +describe()* String
+    }
+    class Player {
+        -int gold
+        -int xp
+        -List inventory
+        +addItem(Item)
+        +removeItem(Item) boolean
+        +findItem(String) Item
+    }
+    class Monster {
+        -String species
+        -int xpReward
+        -CombatStrategy strategy
+        +hpFraction() double
+        +getStrategy() CombatStrategy
+        +setStrategy(CombatStrategy)
+    }
+    class Room {
+        -String id
+        -String flavor
+        -List monsters
+        -List floorItems
+        -Chest chest
+        -Map exits
+        +link(String, Room)
+        +getExit(String) Room
+        +hasLivingMonsters() boolean
+    }
+    class DungeonLevel {
+        -int depth
+        -String themeName
+        -List rooms
+    }
+    class GameWorld {
+        -Player player
+        -List levels
+        -generate()
+        -linkRooms()
+        -populatorFor(ThemeKit, boolean) RoomPopulator
+        +startingRoom() Room
+        +levelContaining(Room) DungeonLevel
+    }
+    class Combat {
+        -EventBus bus
+        +monsterTurns(Player, Room)
+        +playerStrikes(Player, Monster)
+        -monsterActs(Monster, Player, Room)
+        -checkForTacticsChange(Monster)
+        +restAfterRoom(Player)$
+    }
+    class Main {
+        <<entry point>>
+        +main(String[])$
+        -gameLoop()$
+        -runScript()$
+    }
+}
+
+namespace Items {
+    class Item {
+        <<interface>>
+        +getName() String
+        +getWeight() double
+        +getValue() int
+        +describe() String
+    }
+    class Weapon
+    class Armor
+    class Potion
+    class Treasure
+    class Hourglass {
+        -int charges
+        +spendCharges()
+    }
+    class Chest {
+        -List contents
+    }
+}
+
+%% ---------------- SINGLETON relationships ----------------
+GameConfig ..> Json : parses config.json with
+GameConfig --> GameConfig : holds sole instance
+RandomSource --> RandomSource : holds sole instance
+RandomSource ..> GameConfig : reads seed from
+
+%% ---------------- STRATEGY relationships ----------------
+CombatStrategy <|.. AggressiveStrategy : implements
+CombatStrategy <|.. RangedStrategy : implements
+CombatStrategy <|.. SkittishStrategy : implements
+CombatStrategy <|.. HealerStrategy : implements
+CombatStrategy ..> Action : returns
+Action *-- ActionType : has type
+Action --> Entity : target
+Monster o-- CombatStrategy : context holds current strategy
+Combat ..> CombatStrategy : asks chooseAction()
+Combat ..> Action : executes by type
+Combat ..> SkittishStrategy : swaps in when HP below fleeThreshold
+RangedStrategy ..> RandomSource : 25 percent wait roll
+SkittishStrategy ..> GameConfig : reads fleeThreshold
+HealerStrategy ..> Room : scans allies
+MonsterFactory ..> CombatStrategy : strategyFor() builds by name
+
+%% ---------------- OBSERVER relationships ----------------
+EventBus o-- GameEventListener : notifies many
+GameEventListener <|.. CombatLog : implements
+GameEventListener <|.. QuestTracker : implements
+GameEventListener <|.. AchievementSystem : implements
+GameEventListener <|.. ConsolePrinter : implements
+EventBus ..> GameEvent : publishes
+GameEvent --> EventType : typed by
+QuestTracker *-- Quest : owns 3 quests
+Quest --> EventType : trigger
+QuestTracker --> EventBus : posts QUEST COMPLETE
+AchievementSystem --> EventBus : posts ACHIEVEMENT
+ConsolePrinter --> CombatLog : reuses as formatter
+Combat --> EventBus : publishes combat events
+Main ..> EventBus : creates and subscribes listeners
+Main ..> ConsolePrinter : creates
+
+%% ---------------- COMMAND relationships ----------------
+Command <|.. AbstractCommand : implements
+Command <|.. MacroCommand : implements
+Command <|.. SimpleCommand : implements
+Command <|.. NoCommand : implements
+AbstractCommand <|-- AttackCommand : extends
+AbstractCommand <|-- DropCommand : extends
+AbstractCommand <|-- MoveCommand : extends
+AbstractCommand <|-- UseItemCommand : extends
+AttackCommand <|-- TakeCommand : extends (reuses args)
+MacroCommand o-- Command : children (composite)
+AbstractCommand --> GameContext : ctx
+AbstractCommand o-- TurnSnapshot : before-state for undo
+AbstractCommand ..> GameContext : runMonsterTurns() if endsTurn
+TurnSnapshot ..> Player : captures and restores
+TurnSnapshot ..> Room : captures and restores
+TurnSnapshot ..> Monster : saves HP and strategy
+CommandHistory o-- Command : undo stack
+UseItemCommand ..> CommandHistory : Hourglass calls undoLast()
+UseItemCommand ..> Hourglass : spends charge
+UseItemCommand ..> Potion : drinks
+CommandFactory ..> Command : creates
+CommandParser o-- CommandFactory : registry by verb
+CommandParser ..> Command : parse() returns
+CommandParser ..> NoCommand : unknown verb
+CommandParser ..> SimpleCommand : look, inventory, status, help, quit
+CommandParser ..> MacroCommand : loot macro
+CommandParser ..> TakeCommand : loot children
+CommandParser ..> QuestTracker : quests view
+CommandParser ..> AchievementSystem : quests view
+GameContext --> GameWorld
+GameContext --> Player
+GameContext --> EventBus
+GameContext --> Combat
+GameContext --> CommandHistory
+GameContext --> Room : current room
+AttackCommand ..> Combat : playerStrikes()
+MoveCommand ..> Combat : restAfterRoom()
+Main ..> CommandParser : parse each input line
+Main ..> CommandHistory : push executed commands
+Main ..> GameContext : creates
+
+%% ---------------- SIMPLE FACTORY relationships ----------------
+MonsterFactory o-- MonsterDef : blueprints loaded from monsters.json
+MonsterFactory ..> Monster : create() sole new Monster
+MonsterFactory ..> Json : parses monsters.json
+MonsterFactory ..> GameConfig : readResource()
+MonsterFactory ..> RandomSource : stat variance
+
+%% ---------------- ABSTRACT FACTORY relationships ----------------
+ThemeKit <|.. CryptThemeKit : implements
+ThemeKit <|.. ForgeThemeKit : implements
+ThemeKit <|.. FrostThemeKit : implements
+ThemeKit <|.. WinterfellThemeKit : implements
+ThemeKit ..> Monster : creates family member
+ThemeKit ..> Item : creates family member
+ThemeRegistry *-- ThemeKit : registers 4 kits
+ThemeRegistry --> MonsterFactory : passes into each kit
+CryptThemeKit --> MonsterFactory : uses
+ForgeThemeKit --> MonsterFactory : uses
+FrostThemeKit --> MonsterFactory : uses
+WinterfellThemeKit --> MonsterFactory : uses
+ThemeKit ..> RandomSource : pick monster, loot, flavor
+ThemeKit ..> Weapon : loot
+ThemeKit ..> Armor : loot
+ThemeKit ..> Potion : loot
+ThemeKit ..> Treasure : loot
+
+%% ---------------- FACTORY METHOD relationships ----------------
+RoomPopulator <|-- StandardRoomPopulator : overrides createEncounter
+RoomPopulator <|-- TreasureRoomPopulator : overrides createEncounter and createChest hook
+RoomPopulator <|-- BossRoomPopulator : overrides createEncounter and createChest hook
+RoomPopulator --> ThemeKit : HAS-A theme (patterns compose)
+RoomPopulator ..> Room : populate() fills
+RoomPopulator ..> Chest : createChest() hook
+StandardRoomPopulator ..> GameConfig : maxMonstersPerRoom
+StandardRoomPopulator ..> RandomSource : monster count
+TreasureRoomPopulator ..> RandomSource : loot count
+GameWorld ..> RoomPopulator : populatorFor() picks subclass
+GameWorld ..> StandardRoomPopulator : creates
+GameWorld ..> TreasureRoomPopulator : creates 30 percent
+GameWorld ..> BossRoomPopulator : creates for final room
+GameWorld *-- ThemeRegistry : owns
+GameWorld *-- MonsterFactory : owns
+
+%% ---------------- DOMAIN relationships ----------------
+Entity <|-- Player : extends
+Entity <|-- Monster : extends
+Player o-- Item : inventory
+Player ..> GameConfig : starting stats
+GameWorld o-- Player
+GameWorld *-- DungeonLevel : levels
+DungeonLevel *-- Room : rooms
+Room o-- Monster : monsters
+Room o-- Item : floorItems
+Room *-- Chest : chest
+Room --> Room : exits north south down
+Chest o-- Item : contents
+Item <|.. Weapon : implements
+Item <|.. Armor : implements
+Item <|.. Potion : implements
+Item <|.. Treasure : implements
+Item <|.. Hourglass : implements
+Combat ..> Player : damages and rewards xp gold
+Combat ..> Monster : damages, flees, heals
+Combat ..> Room : iterates monsters
+Combat ..> GameConfig : restHealPerRoom, fleeThreshold
+Main ..> GameWorld : creates
+Main ..> Combat : creates
+Main ..> Player : creates
+Main ..> RandomSource : --seed reseed
