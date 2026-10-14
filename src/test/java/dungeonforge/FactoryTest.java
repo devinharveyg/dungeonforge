@@ -66,7 +66,7 @@ public class FactoryTest {
     void bossesAreExcludedFromOrdinarySpawnPool(){
         assertFalse(factory.idsForTheme("crypt").contains("bone_tyrant"));
 
-        assertEquals("bone_tyrant", factory.bossIdFromTheme("crypt"));
+        assertEquals("bone_tyrant", factory.bossIdForTheme("crypt"));
 
     }
 
