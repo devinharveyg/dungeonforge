@@ -1,76 +1,53 @@
 package dungeonforge.commands;
 
-import dungeonforge.config.GameConfig;
 import dungeonforge.core.Combat;
 import dungeonforge.core.GameWorld;
 import dungeonforge.core.Player;
 import dungeonforge.core.Room;
 import dungeonforge.events.EventBus;
-import jdk.jfr.Event;
 
+/**
+ * WEEK 7 -- the RECEIVER, bundled.
+ *
+ * In Head First's remote control, each Command holds its own receiver -- a Light, a Stereo.
+ * Ours all act on the same handful of objects, so they share one context rather than each
+ * storing four references.
+ *
+ * Week 8 grows this class into the State pattern's Context. It is deliberately small now.
+ */
 public class GameContext {
-    private final EventBus bus;
-
-    public EventBus getBus() {
-        return bus;
-    }
-
-    public GameWorld getWorld() {
-        return world;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public Combat getCombat() {
-        return combat;
-    }
-
-    public Room getCurrentRoom() {
-        return currentRoom;
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
 
     private final GameWorld world;
     private final Player player;
+    private final EventBus bus;
     private final Combat combat;
-
-    public CommandHistory getHistory() {
-        return history;
-    }
-
     private final CommandHistory history;
 
-    public void setCurrentRoom(Room currentRoom) {
-        this.currentRoom = currentRoom;
-    }
-
     private Room currentRoom;
-
-    public void stop() {
-        this.running = false;
-    }
-
     private boolean running = true;
 
-
-    public GameContext(GameWorld world, Player player, EventBus bus, Combat combat, CommandHistory history){
-        this.bus = bus;
+    public GameContext(GameWorld world, Player player, EventBus bus,
+                       Combat combat, CommandHistory history) {
         this.world = world;
         this.player = player;
+        this.bus = bus;
         this.combat = combat;
         this.history = history;
         this.currentRoom = world.startingRoom();
     }
 
-    public void runMonsterTurns(){
-        if(player.isAlive()){
-            combat.monsterTurns(player, currentRoom);
-        }
-    }
+    public GameWorld getWorld()          { return world; }
+    public Player getPlayer()            { return player; }
+    public EventBus getBus()             { return bus; }
+    public Combat getCombat()            { return combat; }
+    public CommandHistory getHistory()   { return history; }
+    public Room getCurrentRoom()         { return currentRoom; }
+    public void setCurrentRoom(Room r)   { this.currentRoom = r; }
+    public boolean isRunning()           { return running; }
+    public void stop()                   { this.running = false; }
 
+    /** After a turn-ending command, the monsters get their round. */
+    public void runMonsterTurns() {
+        if (player.isAlive()) combat.monsterTurns(player, currentRoom);
+    }
 }
