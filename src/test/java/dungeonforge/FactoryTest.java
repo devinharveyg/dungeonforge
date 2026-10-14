@@ -125,7 +125,7 @@ public class FactoryTest {
         for(DungeonLevel level : world.getLevels()){
             Set<String> allowed = switch (level.getThemeName()){
                 case "Crypt" -> Set.of("Skeleton", "Ghoul", "Crypt Rat", "Wight", "Bone Priest", "Bone Tyrant");
-                case "Forge" -> Set.of("Imp", "Slag Mound", "Ember Sprite", "Forge Golem", "Forge Tyrant");
+                case "Forge" -> Set.of("Imp", "Slag Hound", "Ember Sprite", "Forge Golem", "Forge Tyrant");
                 case "Frost" -> Set.of("Frost Wight", "Rime Stalker", "Ice Lurker", "Hoar Shade", "Rime Tyrant");
                 case "Winterfell" -> Set.of("White Walker", "Direwolf", "Night King Tyrant");
                 default ->  Set.of();
