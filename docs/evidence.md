@@ -100,13 +100,43 @@ $ grep -n "getStateName" src/main/java/dungeonforge/core/Combat.java
 **Paste `help` in Exploring and in Combat, side by side:**
 
 ```
+=========================================
+        D U N G E O N F O R G E
+  A Head First Design Patterns project
+=========================================
+  version 0.7.0   seed 20260818
 
+  Type 'help' for what you can do. You are carrying an hourglass -- 'use hourglass' rewinds a turn.
+  [L1R0] Level 1: Crypt
+  "Burial niches line the walls. Most are empty. Most."
+  Exits: north
+
+[Exploring] [HP 80/80] > help
+
+  [ Exploring ] you can north, south, down, look, take, loot, drop, use, inventory, pack, status, quests, history, undo, help, quit
+
+[Exploring] [HP 80/80] > north
+
+  You go north.
+  Ghoul is now hunting.
+  Combat! 1 hostiles try 'attack'
+
+[Combat] [HP 80/80] > help
+
+  [ Combat ] you can attack, look, use, inventory, status, history, undo, help, quit
+
+[Combat] [HP 80/80] > 
 ```
 
 **Paste an attempt to move during combat:**
 
 ```
+[Combat] [HP 80/80] > north
 
+  You can not do that in Combat mode.
+ available here: attack, look, use, inventory, status, history, undo, help, quit
+
+[Combat] [HP 80/80] > 
 ```
 
 **Paste the grep proving the guards are gone:**
@@ -116,13 +146,47 @@ grep -rn "hasLivingMonsters" src/main/java/dungeonforge/commands/
 ```
 
 ```
+$ grep -rn "hasLivingMonsters" src/main/java/dungeonforge/commands/
+src/main/java/dungeonforge/commands/CommandParser.java:181:        if (room.hasLivingMonsters()) {
+src/main/java/dungeonforge/commands/GameContext.java:65:        if(currentRoom.hasLivingMonsters()) transitionTo(new CombatState());
 
 ```
 
 **Paste entering and leaving the pack, and the prompt in each mode:**
 
 ```
+[Combat] [HP 80/80] > pack
 
+  You can not do that in Combat mode.
+ available here: attack, look, use, inventory, status, history, undo, help, quit
+
+[Combat] [HP 80/80] > hit
+
+  You hit Ghoul for 10.
+  Ghoul hits you for 2.
+  ACHIEVEMENT: Cornered -- Force an enemy to change tactics
+  Ghoul changes tactics: dungeonforge.behavior.RangedStrategy@4e9ea4b0 -> aggressive.
+  Ghoul is now enraged.
+
+[Combat] [HP 78/80] > hit
+
+  You hit Ghoul for 10.
+  ACHIEVEMENT: First Blood -- Defeat your first monster
+  Ghoul dies. +12 XP.
+  The room falls quiet
+
+[Exploring] [HP 78/80] > pack
+
+   ---- your pack ---- (back to close)
+
+inv
+[Pack] [HP 78/80] > 
+  You are carrying:
+    - Small Healing Draught [heals 22] (0.3kg, 20g)
+    - Chronomancer's Hourglass [2 charges] (rewinds one turn)
+
+back
+[Pack] [HP 78/80] > 
 ```
 
 ## 3. AFTER — US-6.3
@@ -134,13 +198,29 @@ grep -n "getStateName\|\"enraged\"\|\"idle\"" src/main/java/dungeonforge/core/Co
 ```
 
 ```
+$ grep -n "getStateName\|\"enraged\"\|\"idle\"" src/main/java/dungeonforge/core/Combat.java
 
 ```
 
 **Paste a fight showing a monster moving through its lifecycle:**
 
 ```
+[Combat] [HP 80/80] > a
 
+  You hit Ghoul for 10.
+  Ghoul hits you for 2.
+  ACHIEVEMENT: Cornered -- Force an enemy to change tactics
+  Ghoul changes tactics: ranged -> aggressive.
+  Ghoul is now enraged.
+
+[Combat] [HP 78/80] > a
+
+  You hit Ghoul for 10.
+  ACHIEVEMENT: First Blood -- Defeat your first monster
+  Ghoul dies. +12 XP.
+  The room falls quiet
+
+[Exploring] [HP 78/80] > 
 ```
 
 ## 4. AFTER — US-6.4
