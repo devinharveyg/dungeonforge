@@ -256,6 +256,7 @@ class StrategyObserverTest {
                 return Action.wait("does nothing at all");
             }
             @Override public String name() { return "inert"; }
+            public String label() { return "inert"; }
         };
 
         Monster m = new Monster("Test", 10, 3, 5);
