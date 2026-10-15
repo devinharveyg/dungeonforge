@@ -52,7 +52,7 @@ public class Combat {
             if(m.getStrategy() != tacticsBefore){
                 bus.publish(GameEvent.of(EventType.STRATEGY_CHANGED,
                         "name", m.getName(),
-                        "from", tacticsBefore,
+                        "from", tacticsBefore.label(),
                         "to", m.getStrategy().name()));
             }
 

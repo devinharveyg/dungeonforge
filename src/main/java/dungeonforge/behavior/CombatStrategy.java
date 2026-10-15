@@ -34,4 +34,6 @@ public interface CombatStrategy {
 
     /** For logs and tests. */
     String name();
+
+    String label();
 }

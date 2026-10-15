@@ -12,5 +12,7 @@ public class AggressiveStrategy implements CombatStrategy {
         return new Action(Action.Type.ATTACK, target, self.getName() + " lunges at you");
     }
 
+    public String label() { return "aggressive"; }
+
     @Override public String name() { return "aggressive"; }
 }
