@@ -228,18 +228,45 @@ $ grep -n "getStateName\|\"enraged\"\|\"idle\"" src/main/java/dungeonforge/core/
 **Paste the test output (or a demo) showing a healer that becomes aggressive when enraged:**
 
 ```
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running dungeonforge.CommandTest
+[INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 s -- in dungeonforge.CommandTest
+[INFO] Running dungeonforge.FactoryTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in dungeonforge.FactoryTest
+[INFO] Running dungeonforge.SingletonTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in dungeonforge.SingletonTest
+[INFO] Running dungeonforge.SkeletonTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in dungeonforge.SkeletonTest
+[INFO] Running dungeonforge.StateTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.061 s -- in dungeonforge.StateTest
+[INFO] Running dungeonforge.StrategyObserverTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 s -- in dungeonforge.StrategyObserverTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 86, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.900 s
+[INFO] Finished at: 2026-10-15T11:47:05-07:00
+[INFO] ------------------------------------------------------------------------
 
 ```
 
 **In one sentence: which one changed the other, and could it have gone the other way?**
 
+The CombatStrategy was changed by the GameState.
 
 ## 5. Tests and CI
 
 **`mvn test` summary:**
 
 ```
-
+see above
 ```
 
 **Green CI URL:**
@@ -247,4 +274,6 @@ $ grep -n "getStateName\|\"enraged\"\|\"idle\"" src/main/java/dungeonforge/core/
 ## 6. Sprint review — one sentence
 
 > What can the project do now that it could not do last week?
+
+The project can now switch between states (exploring, combat, ...) replacing a long chain of if statements.
 
