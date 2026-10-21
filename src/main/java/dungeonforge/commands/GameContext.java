@@ -29,10 +29,6 @@ public class GameContext {
     private Room currentRoom;
     private boolean running = true;
 
-    public GameState getState() {
-        return state;
-    }
-
     private GameState state = new ExploringState();
 
     public GameContext(GameWorld world, Player player, EventBus bus,
@@ -45,30 +41,25 @@ public class GameContext {
         this.currentRoom = world.startingRoom();
     }
 
-    public void transitionTo(GameState next){
-        if(next == null || next.getClass() == state.getClass()) return;
+    public void transitionTo(GameState next) {
+        if (next == null || next.getClass() == state.getClass()) return;
         state.onExit(this);
         state = next;
         next.onEnter(this);
     }
 
-    public void syncState(){
-
-        if(!player.isAlive() || !running){
+    public void syncState() {
+        if (!player.isAlive() || !running) {
             transitionTo(new GameOverState());
             return;
         }
         if (state instanceof InventoryState) return;
 
-
-
-        if(currentRoom.hasLivingMonsters()) transitionTo(new CombatState());
+        if (currentRoom.hasLivingMonsters()) transitionTo(new CombatState());
         else transitionTo(new ExploringState());
     }
 
-    public List<String> allowedVerbs(){
-        return state.availableCommands();
-    }
+    public List<String> allowedVerbs() { return state.availableCommands(); }
 
     public GameWorld getWorld()          { return world; }
     public Player getPlayer()            { return player; }
@@ -79,14 +70,10 @@ public class GameContext {
     public void setCurrentRoom(Room r)   { this.currentRoom = r; }
     public boolean isRunning()           { return running; }
     public void stop()                   { this.running = false; }
+    public GameState getState() { return state; }
 
-
-    public void openPack(){
-        transitionTo(new InventoryState());
-    }
-    public void closePack(){
-        transitionTo(new ExploringState());
-    }
+    public void openPack() {transitionTo(new InventoryState());}
+    public void closePack() {transitionTo(new ExploringState());}
 
     /** After a turn-ending command, the monsters get their round. */
     public void runMonsterTurns() {

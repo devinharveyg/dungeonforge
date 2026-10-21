@@ -23,7 +23,6 @@ public class SkittishStrategy implements CombatStrategy {
         }
         return new Action(Action.Type.ATTACK, target, self.getName() + " snaps at you nervously");
     }
-    public String label() { return "skittish"; }
 
     @Override public String name() { return "skittish"; }
 }

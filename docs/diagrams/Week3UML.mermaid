@@ -1,33 +1,58 @@
 classDiagram
+    direction TB
 
 %% =========================================================
-%% CONFIG PACKAGE
+%% Main application
 %% =========================================================
 
-namespace dungeonforge.config {
+    class Main {
+        <<final>>
+        +String VERSION
+        -Main()
+        +String banner()$
+        +void main(String[] args)$
+    }
+
+%% =========================================================
+%% Configuration package
+%% =========================================================
 
     class GameConfig {
-        <<final>>
-        -GameConfig instance
+        -GameConfig instance$
         -Map~String,Object~ settings
-
         -GameConfig()
-        +static GameConfig getInstance()
+        +GameConfig getInstance()$
         -void loadDefaults()
-        +void loadFromClasspath(String resourceName)
+        -void loadFromClasspath(String resourceName)
         +int getInt(String key)
         +double getDouble(String key)
         +long getSeed()
-        +static void resetForTests()
+        +void resetForTests()$
+    }
+
+    class RandomSource {
+        <<final>>
+        -RandomSource instance$
+        -Random rng
+        -long seed
+        -RandomSource()
+        +RandomSource getInstance()$
+        +int nextInt(int bound)
+        +int between(int lo, int hi)
+        +double nextDouble()
+        +T pick(List~T~ options)
+        +T pick(T[] options)
+        +long getSeed()
+        +void reseed(long newSeed)
+        +void resetForTests()$
     }
 
     class Json {
         <<final>>
         -String s
         -int i
-
         -Json(String s)
-        +static Map~String,Object~ parseObject(String text)
+        +Map~String,Object~ parseObject(String text)$
         -void ws()
         -Object value()
         -Map~String,Object~ object()
@@ -36,30 +61,9 @@ namespace dungeonforge.config {
         -Double number()
     }
 
-    class RandomSource {
-        <<final>>
-        -RandomSource instance
-        -Random rng
-        -long seed
-
-        -RandomSource()
-        +static RandomSource getInstance()
-        +int nextInt(int bound)
-        +int between(int low, int high)
-        +double nextDouble()
-        +T pick(List~T~ options)
-        +T pick(T[] options)
-        +long getSeed()
-        +void reseed(long newSeed)
-        +static void resetForTests()
-    }
-}
-
 %% =========================================================
-%% CORE PACKAGE
+%% Core domain
 %% =========================================================
-
-namespace dungeonforge.core {
 
     class Entity {
         <<abstract>>
@@ -68,7 +72,6 @@ namespace dungeonforge.core {
         #int maxHp
         #int attackPower
         #int defense
-
         #Entity(String name, int maxHp, int attackPower, int defense)
         +String getName()
         +int getHp()
@@ -85,7 +88,6 @@ namespace dungeonforge.core {
     class Player {
         -int gold
         -int xp
-
         +Player(String name)
         +int getGold()
         +int getXp()
@@ -98,40 +100,15 @@ namespace dungeonforge.core {
     class Monster {
         -String species
         -int xpReward
-
         +Monster(String species, int baseHp, int baseAttack, int xpReward)
         +String getSpecies()
         +int getXpReward()
         +String describe()
     }
 
-    class Room {
-        -static String[] FLAVORS
-        -String id
-        -String flavor
-        -List~Monster~ monsters
-
-        +Room(String id)
-        +String getId()
-        +String getFlavor()
-        +List~Monster~ getMonsters()
-        +void addMonster(Monster m)
-    }
-
-    class DungeonLevel {
-        -int depth
-        -List~Room~ rooms
-
-        +DungeonLevel(int depth)
-        +int getDepth()
-        +List~Room~ getRooms()
-        +void addRoom(Room r)
-    }
-
     class GameWorld {
         -Player player
         -List~DungeonLevel~ levels
-
         +GameWorld(Player player)
         -void generate()
         -Monster spawn(int depth)
@@ -139,61 +116,99 @@ namespace dungeonforge.core {
         +List~DungeonLevel~ getLevels()
         +int totalMonsters()
     }
-}
 
-%% =========================================================
-%% APPLICATION PACKAGE
-%% =========================================================
-
-namespace dungeonforge {
-
-    class Main {
-        <<final>>
-        +static String VERSION
-        -Main()
-
-        +static String banner()
-        +static void main(String[] args)
+    class DungeonLevel {
+        -int depth
+        -List~Room~ rooms
+        +DungeonLevel(int depth)
+        +int getDepth()
+        +List~Room~ getRooms()
+        +void addRoom(Room r)
     }
-}
+
+    class Room {
+        -String[] FLAVORS$
+        -String id
+        -String flavor
+        -List~Monster~ monsters
+        +Room(String id)
+        +String getId()
+        +String getFlavor()
+        +List~Monster~ getMonsters()
+        +void addMonster(Monster m)
+    }
 
 %% =========================================================
-%% INHERITANCE
+%% Tests
 %% =========================================================
 
-Entity <|-- Player
-Entity <|-- Monster
+    class SkeletonTest {
+        <<test>>
+        +void versionIsSet()
+        +void bannerNamesTheProject()
+    }
+
+    class SingletonTest {
+        <<test>>
+        +void freshSingletons()
+        +void configReturnsTheSameInstanceEveryTime()
+        +void configConstructorIsPrivate()
+        +void aPlayerIsBuiltFromConfiguredValues()
+        +void unknownKeysDoNotCrashTheGame()
+        +void randomSourceReturnsTheSameInstanceEveryTime()
+        +void randomSourceConstructorIsPrivate()
+        +void theSameSeedProducesTheSameSeedSequence()
+        +void theDifferentSeedProducesADifferentSequence()
+        +void theSameSeedProducesTheSameDungeon()
+        -int[] tenRolls()
+    }
 
 %% =========================================================
-%% DOMAIN COMPOSITION
+%% Inheritance
 %% =========================================================
 
-GameWorld "1" *-- "1..*" DungeonLevel : contains
-DungeonLevel "1" *-- "0..*" Room : contains
-Room "1" *-- "0..*" Monster : contains
-
-%% GameWorld retains a reference to the Player supplied to it
-GameWorld "1" --> "1" Player : player
+    Entity <|-- Player
+    Entity <|-- Monster
 
 %% =========================================================
-%% CONFIG / SERVICE DEPENDENCIES
+%% Domain composition
 %% =========================================================
 
-GameWorld ..> GameConfig : reads dungeon settings
-GameWorld ..> RandomSource : generates dungeon
-
-Player ..> GameConfig : reads player settings
-Monster ..> RandomSource : generates stat variance
-Room ..> RandomSource : selects flavor
-RandomSource ..> GameConfig : gets initial seed
-GameConfig ..> Json : parses config.json
+    GameWorld *-- "1" Player : owns
+    GameWorld *-- "0..*" DungeonLevel : contains
+    DungeonLevel *-- "0..*" Room : contains
+    Room *-- "0..*" Monster : contains
 
 %% =========================================================
-%% APPLICATION DEPENDENCIES
+%% Configuration / service dependencies
 %% =========================================================
 
-Main ..> Player : creates
-Main ..> GameWorld : creates
-Main ..> DungeonLevel : iterates
-Main ..> Room : iterates
-Main ..> Monster : iterates
+    Player ..> GameConfig : reads settings
+    GameWorld ..> GameConfig : reads settings
+    GameWorld ..> RandomSource : generates dungeon
+    Room ..> RandomSource : chooses flavor
+    Monster ..> RandomSource : generates stat variance
+    RandomSource ..> GameConfig : gets initial seed
+    GameConfig ..> Json : parses config.json
+
+%% =========================================================
+%% Application dependencies
+%% =========================================================
+
+    Main ..> RandomSource : reseed / getSeed
+    Main ..> Player : creates
+    Main ..> GameWorld : creates
+    Main ..> DungeonLevel : iterates
+    Main ..> Room : iterates
+    Main ..> Monster : iterates
+
+%% =========================================================
+%% Test dependencies
+%% =========================================================
+
+    SkeletonTest ..> Main : tests
+
+    SingletonTest ..> GameConfig : tests singleton
+    SingletonTest ..> RandomSource : tests singleton / seed
+    SingletonTest ..> Player : tests construction
+    SingletonTest ..> GameWorld : tests reproducibility
