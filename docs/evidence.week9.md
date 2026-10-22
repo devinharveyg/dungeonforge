@@ -37,18 +37,19 @@ wc -l src/main/java/dungeonforge/items/EnchantmentForge.java
 
 | | Count |
 |---|---|
-| Weapon/enchantment classes | |
-| Files containing the fire damage bonus | |
-| `instanceof` tests in `items/` | |
-| `return null` paths in `EnchantmentForge` | |
-| Lines in `EnchantmentForge` | |
+| Weapon/enchantment classes | 8 |
+| Files containing the fire damage bonus | 4 |
+| `instanceof` tests in `items/` | 34 |
+| `return null` paths in `EnchantmentForge` | 13 |
+| Lines in `EnchantmentForge` |108 |
 
 **Open `FlamingFrostVampiricWeapon.java`. Which of its methods contain arithmetic that also
 appears, word for word, in another file?**
 
+getDamage() and getValue()
 
 **You want a fourth enchantment, `keen`. Before you look anything up: how many new classes
-would this package need?** ______
+would this package need?** ___15___
 
 *(Write it down before reading on.)* For N enchantments the package needs 2^N − 1 classes.
 N = 3 is 7. N = 4 is 15. N = 5 is 31.
