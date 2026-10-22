@@ -52,14 +52,18 @@ public class Monster extends Entity {
     public void setStrategy(CombatStrategy strategy) { this.strategy = strategy; }
 
     public MonsterState getState()          { return stateName; }
+
     public void setState(MonsterState next) {
         if (next == null || next == this.stateName) return;
         this.stateName = next;
         next.onEnter(this);
     }
 
-    public void restoreState(MonsterState previous){
-        if(previous != null) this.stateName = previous;
+    /**
+    * Only TurnSnapshot should call this. Anything else is a transition and belongs above.
+    */
+    public void restoreState(MonsterState previous) {
+        if (previous != null) this.stateName = previous;
     }
 
     /** How close to death, as a fraction. Strategies read this to decide whether to run. */

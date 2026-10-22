@@ -26,7 +26,5 @@ public class HealerStrategy implements CombatStrategy {
         return new Action(Action.Type.ATTACK, target, self.getName() + " strikes with a censer");
     }
 
-    public String label() { return "healer"; }
-
     @Override public String name() { return "healer"; }
 }

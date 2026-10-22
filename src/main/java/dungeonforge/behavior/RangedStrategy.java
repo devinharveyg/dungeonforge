@@ -15,6 +15,6 @@ public class RangedStrategy implements CombatStrategy {
         }
         return new Action(Action.Type.RANGED_ATTACK, target, self.getName() + " looses a shot");
     }
-    public String label() { return "ranged"; }
+
     @Override public String name() { return "ranged"; }
 }
