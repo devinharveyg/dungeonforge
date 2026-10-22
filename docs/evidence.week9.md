@@ -120,20 +120,25 @@ exist in any design. Which is which, and how do you know?
 **Paste `git diff --stat HEAD~1` for the commit that added the fourth enchantment:**
 
 ```
+$ git diff --stat HEAD~1
+ .../dungeonforge/items/EnchantmentRegistry.java    |  1 +
+ src/main/java/dungeonforge/items/KeenWeapon.java   | 25 +++++++++++++
+ src/test/java/dungeonforge/DecoratorTest.java      | 41 ++++++++++++++++++++++
+ 3 files changed, 67 insertions(+)
 
 ```
 
-**New files:** ______  **Modified files:** ______  **Lines added to modified files:** ______
+**New files:** __1___  **Modified files:** __1___  **Lines added to modified files:** _1___
 
 **Now re-run the Part 1 counts on the finished package:**
 
 | | Before | After |
 |---|---|---|
-| Weapon/enchantment classes | | |
-| Files containing the fire bonus | | |
-| `instanceof` in `items/` | | |
-| `return null` paths in the selection class | | |
-| Lines in the selection class | | |
+| Weapon/enchantment classes | 8| 7|
+| Files containing the fire bonus | 4|0 |
+| `instanceof` in `items/` | 34| 0|
+| `return null` paths in the selection class | 13| 0|
+| Lines in the selection class | 108| 33|
 
 ---
 
@@ -147,14 +152,15 @@ exist in any design. Which is which, and how do you know?
 
 | Stack | Result |
 |---|---|
-| `Flaming(Keen(sword))` | dmg ______ |
-| `Keen(Flaming(sword))` | dmg ______ |
-| `Vampiric(Flaming(sword))` | drain ______ |
-| `Flaming(Vampiric(sword))` | drain ______ |
+| `Flaming(Keen(sword))` | dmg ___16___ |
+| `Keen(Flaming(sword))` | dmg ___18___ |
+| `Vampiric(Flaming(sword))` | drain ___3___ |
+| `Flaming(Vampiric(sword))` | drain ___2___ |
 
-**One paragraph. Why is this correct behaviour rather than a bug?** *(There is one idea to
+**One paragraph. Why is this correct behavior rather than a bug?** *(There is one idea to
 state, and everything else follows from it.)*
 
+The order of operations is changed which affects how the additions and multiplications are applied. They are affected by the order.
 
 ---
 
@@ -164,15 +170,16 @@ state, and everything else follows from it.)*
 git diff --stat main -- src/main/java/dungeonforge/core/
 ```
 
-**Which files in `core/` changed during this entire sprint?** ______
+**Which files in `core/` changed during this entire sprint?** __25___
 
 **`Combat.playerStrikes()` computes the damage the player deals and the hit points they drink
 back. You added four enchantments this week, two of which change damage and one of which
-changes healing. How many lines of `Combat.java` did you edit?** ______
+changes healing. How many lines of `Combat.java` did you edit?** __5____
 
 **Explain that number** in two or three sentences, using the phrase *programs to the
 interface* and naming which interface.
 
+The enchantments all are using the Weapon interface that only needed to be modified to add the lifeSteal functionality.
 
 ---
 
@@ -194,3 +201,5 @@ interface* and naming which interface.
 ## 7. Retro line
 
 **One sentence on something Decorator gave you, and one on something it did not.**
+
+The decorator gave the ability to apply various different combinations of enchantments with different orders.
