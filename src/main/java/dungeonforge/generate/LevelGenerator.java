@@ -17,6 +17,8 @@ public abstract class LevelGenerator {
         connectRooms(level);
         markEntrance(level, theme);
         populateRooms(level, theme, depth, isFinalLevel);
+        addShortcuts(level);
+        decorate(level, theme);
         enforceReachability(level);
 
         return level;
@@ -28,6 +30,8 @@ public abstract class LevelGenerator {
     }
     protected abstract void connectRooms(DungeonLevel level);
 
+    protected void addShortcuts(DungeonLevel level) { }
+    protected void decorate(DungeonLevel level, ThemeKit theme) { }
     public abstract String shapeName();
     private void markEntrance(DungeonLevel level,ThemeKit theme){
         if(level.getRooms().isEmpty()){
