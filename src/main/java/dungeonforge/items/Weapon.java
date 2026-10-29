@@ -14,7 +14,6 @@ package dungeonforge.items;
  */
 public interface Weapon extends Item {
 
-
     int getDamage();
 
     /**
@@ -22,5 +21,4 @@ public interface Weapon extends Item {
      * Zero for an ordinary weapon. Combat calls this after every player strike.
      */
     default int lifesteal() { return 0; }
-
 }

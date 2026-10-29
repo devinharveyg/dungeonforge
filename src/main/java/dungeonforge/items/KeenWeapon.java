@@ -10,16 +10,16 @@ public class KeenWeapon extends WeaponDecorator{
 
     @Override
     protected String prefix() {
-        return "";
+        return "Keen";
     }
 
     @Override
     protected int valueBonus() {
-        return 0;
+        return 75;
     }
 
     @Override
     public int getDamage() {
-        return (int)Math.round(wrapped.getDamage() * EDGE );
+        return (int)Math.round(wrapped.getDamage() * EDGE);
     }
 }

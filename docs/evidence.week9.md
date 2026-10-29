@@ -36,20 +36,20 @@ wc -l src/main/java/dungeonforge/items/EnchantmentForge.java
 ```
 
 | | Count |
-|---|---|
-| Weapon/enchantment classes | 8 |
-| Files containing the fire damage bonus | 4 |
-| `instanceof` tests in `items/` | 34 |
-| `return null` paths in `EnchantmentForge` | 13 |
-| Lines in `EnchantmentForge` |108 |
+|---|-------|
+| Weapon/enchantment classes | 8     |
+| Files containing the fire damage bonus | 4     |
+| `instanceof` tests in `items/` | 34    |
+| `return null` paths in `EnchantmentForge` | 13    |
+| Lines in `EnchantmentForge` | 108   |
 
 **Open `FlamingFrostVampiricWeapon.java`. Which of its methods contain arithmetic that also
 appears, word for word, in another file?**
+getDamage() is the method and getValue()
 
-getDamage() and getValue()
 
 **You want a fourth enchantment, `keen`. Before you look anything up: how many new classes
-would this package need?** ___15___
+would this package need?** __15____
 
 *(Write it down before reading on.)* For N enchantments the package needs 2^N − 1 classes.
 N = 3 is 7. N = 4 is 15. N = 5 is 31.
@@ -108,7 +108,7 @@ exist in any design. Which is which, and how do you know?
 
 | Defect | Design, or ordinary bug? | How you can tell |
 |---|---|---|
-| (a) stale hand | | |
+| (a) stale hand |  | |
 | (b) no double enchantment | | |
 | (c) no fourth enchantment | | |
 | (d) base-value recovery | | |
@@ -120,25 +120,27 @@ exist in any design. Which is which, and how do you know?
 **Paste `git diff --stat HEAD~1` for the commit that added the fourth enchantment:**
 
 ```
-$ git diff --stat HEAD~1
- .../dungeonforge/items/EnchantmentRegistry.java    |  1 +
- src/main/java/dungeonforge/items/KeenWeapon.java   | 25 +++++++++++++
- src/test/java/dungeonforge/DecoratorTest.java      | 41 ++++++++++++++++++++++
- 3 files changed, 67 insertions(+)
-
+trevorhartman@Noelles-MacBook-Pro dungeonforge % git diff --stat HEAD~1
+ src/main/java/dungeonforge/commands/EnchantCommand.java   |  27 +++++++--------
+ src/main/java/dungeonforge/commands/TurnSnapshot.java     |   4 +++
+ src/main/java/dungeonforge/items/EnchantmentForge.java    | 114 ----------------------------------------------------------------
+ src/main/java/dungeonforge/items/EnchantmentRegistry.java |  33 +++++++++++++++++++
+ src/main/java/dungeonforge/items/KeenWeapon.java          |  25 ++++++++++++++
+ src/test/java/dungeonforge/DecoratorTest.java             | 209 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 283 insertions(+), 129 deletions(-)
 ```
 
-**New files:** __1___  **Modified files:** __1___  **Lines added to modified files:** _1___
+**New files:** ___1___  **Modified files:** ___1___  **Lines added to modified files:** ___1___
 
 **Now re-run the Part 1 counts on the finished package:**
 
 | | Before | After |
 |---|---|---|
-| Weapon/enchantment classes | 8| 7|
-| Files containing the fire bonus | 4|0 |
-| `instanceof` in `items/` | 34| 0|
-| `return null` paths in the selection class | 13| 0|
-| Lines in the selection class | 108| 33|
+| Weapon/enchantment classes | 8| 7 |
+| Files containing the fire bonus | 4| 0|
+| `instanceof` in `items/` |34 |0 |
+| `return null` paths in the selection class |13 |0 |
+| Lines in the selection class |108 |33 |
 
 ---
 
@@ -147,7 +149,22 @@ $ git diff --stat HEAD~1
 **Paste your two order tests, and their four numbers:**
 
 ```java
+   @Test
+    void orderChangesTheResultForMultiplyingDecorators() {
+        int keenThenFire = new FlamingWeapon(new KeenWeapon(sword())).getDamage();
+        int fireThenKeen = new KeenWeapon(new FlamingWeapon(sword())).getDamage();
 
+        assertEquals(16, keenThenFire);
+        assertEquals(18, fireThenKeen);
+        assertNotEquals(keenThenFire, fireThenKeen,
+                "If these were equal, order would not matter nad this test would be pointless");
+    }
+
+    @Test
+    void orderChangesHowMuchAVampiricWeaponDrinks() {
+        assertEquals(3, new VampiricWeapon(new FlamingWeapon(sword())).lifesteal());
+        assertEquals(2, new FlamingWeapon(new VampiricWeapon(sword())).lifesteal());
+    }
 ```
 
 | Stack | Result |
@@ -157,10 +174,9 @@ $ git diff --stat HEAD~1
 | `Vampiric(Flaming(sword))` | drain ___3___ |
 | `Flaming(Vampiric(sword))` | drain ___2___ |
 
-**One paragraph. Why is this correct behavior rather than a bug?** *(There is one idea to
+**One paragraph. Why is this correct behaviour rather than a bug?** *(There is one idea to
 state, and everything else follows from it.)*
 
-The order of operations is changed which affects how the additions and multiplications are applied. They are affected by the order.
 
 ---
 
@@ -170,16 +186,15 @@ The order of operations is changed which affects how the additions and multiplic
 git diff --stat main -- src/main/java/dungeonforge/core/
 ```
 
-**Which files in `core/` changed during this entire sprint?** __25___
+**Which files in `core/` changed during this entire sprint?** __25q____
 
 **`Combat.playerStrikes()` computes the damage the player deals and the hit points they drink
 back. You added four enchantments this week, two of which change damage and one of which
-changes healing. How many lines of `Combat.java` did you edit?** __5____
+changes healing. How many lines of `Combat.java` did you edit?** __0____
 
 **Explain that number** in two or three sentences, using the phrase *programs to the
 interface* and naming which interface.
 
-The enchantments all are using the Weapon interface that only needed to be modified to add the lifeSteal functionality.
 
 ---
 
@@ -201,5 +216,3 @@ The enchantments all are using the Weapon interface that only needed to be modif
 ## 7. Retro line
 
 **One sentence on something Decorator gave you, and one on something it did not.**
-
-The decorator gave the ability to apply various different combinations of enchantments with different orders.

@@ -19,8 +19,7 @@ public class EnchantCommand extends AbstractCommand {
 
     private Weapon before;
     private Weapon after;
-
-    private boolean wasEquiped;
+    private boolean wasEquipped;
 
     public EnchantCommand(GameContext ctx, String args) { super(ctx, args); }
 
@@ -29,15 +28,15 @@ public class EnchantCommand extends AbstractCommand {
         // "slag cleaver with flaming"  ->  split on the LAST " with "
         int at = args.toLowerCase().lastIndexOf(" with ");
         if (at < 0) {
-            bus().message("Try: enchant <weapon> with "+String.join("|", EnchantmentRegistry.known()));
+            bus().message("Try: enchant <weapon> with <" + String.join("|", EnchantmentRegistry.known()) + ">");
             return false;
         }
         String target = args.substring(0, at).trim();
         String enchantment = args.substring(at + 6).trim();
 
         if (!EnchantmentRegistry.isKnown(enchantment)) {
-            bus().message("No such enchantment: " + enchantment +
-                    " known:" + String.join("|", EnchantmentRegistry.known()));
+            bus().message("No such enchantment: " + enchantment
+                    + ". Known: " + String.join("|", EnchantmentRegistry.known()));
             return false;
         }
         Item item = player().findItem(target);
@@ -50,15 +49,13 @@ public class EnchantCommand extends AbstractCommand {
             return false;
         }
 
-
-
         before = w;
         after = EnchantmentRegistry.apply(enchantment, w);
-        wasEquiped = (player().getEquippedWeapon() == w);
+        wasEquipped = (player().getEquippedWeapon() == w);
+
         player().removeItem(w);
-        if(wasEquiped){
-            player().equip(after);
-        }
+        player().addItem(after);
+        if(wasEquipped) { player().equip(after);}
         bus().message("The " + w.getName() + " is now " + after.describe());
 
         // KNOWN DEFECT (US-7.2). `result` is a DIFFERENT OBJECT. If the old weapon was the
