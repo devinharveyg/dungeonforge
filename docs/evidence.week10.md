@@ -228,13 +228,17 @@ grep -c 'switch (d % ' src/main/java/dungeonforge/core/GameWorld.java
 **Paste `git diff --stat HEAD~1` for the commit that added the fourth shape:**
 
 ```
+$ git diff --stat HEAD~1
+ .../dungeonforge/generate/GeneratorRegistry.java   |  1 +
+ .../java/dungeonforge/generate/SpokeGenerator.java | 31 ++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
 ```
 
-**New files:** ______  **Modified files:** ______  **Lines added:** ______
+**New files:** __1___  **Modified files:** ___1__  **Lines added:** __34___
 
-**Is `GameWorld.java` in that diff?** ______ **Why not?**
-
+**Is `GameWorld.java` in that diff?** __no__ **Why not?**
+The template pattern removed the room generation from GameWorld.java.  
 
 ### The other half of the receipt — what the old design would have cost
 
