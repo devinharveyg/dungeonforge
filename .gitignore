@@ -1,6 +1,7 @@
 target/
 out/
 build/
+.venv/
 *.class
 *.jar
 !.mvn/wrapper/maven-wrapper.jar
@@ -8,7 +9,6 @@ saves/
 .idea/
 *.iml
 *.iws
-.venv/
 .vscode/
 .settings/
 .classpath

@@ -14,7 +14,6 @@ package dungeonforge.items;
  */
 public interface Weapon extends Item {
 
-
     int getDamage();
 
     /**
@@ -23,4 +22,7 @@ public interface Weapon extends Item {
      */
     default int lifesteal() { return 0; }
 
+    default Weapon peel(){
+        return this;
+    }
 }

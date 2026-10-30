@@ -94,10 +94,10 @@ git diff --stat HEAD~1
 
 | | Starter design | Decorator design |
 |---|---|---|
-| New files | | |
-| Modified files | | |
-| Lines added to modified files | | |
-| `instanceof` count afterwards | | |
+| New files | | 1|
+| Modified files | |1 |
+| Lines added to modified files | |1 |
+| `instanceof` count afterwards | | 0|
 
 **Step 4.** One sentence: what is the *shape* of each design's growth curve? Use the words
 "linear" and "exponential" correctly, or do not use them at all.

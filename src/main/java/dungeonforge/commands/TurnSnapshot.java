@@ -54,7 +54,6 @@ public final class TurnSnapshot {
         this.gold = player.getGold();
         this.xp = player.getXp();
         this.inventory = new ArrayList<>(player.getInventory());
-
         this.equipped = player.getEquippedWeapon();
 
         this.monsters = new ArrayList<>(room.getMonsters());
