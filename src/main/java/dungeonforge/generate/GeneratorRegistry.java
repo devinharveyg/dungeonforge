@@ -6,24 +6,20 @@ import java.util.List;
 public class GeneratorRegistry {
     private final List<LevelGenerator> shapes = new ArrayList<>();
 
-    public GeneratorRegistry(){
+    public GeneratorRegistry() {
         shapes.add(new CorridorGenerator());
         shapes.add(new CaveGenerator());
         shapes.add(new RingGenerator());
         shapes.add(new SpokeGenerator());
     }
 
-    public LevelGenerator forDepth(int depth){
-        return shapes.get((depth - 1) % shapes.size());
-    }
+    public LevelGenerator forDepth(int depth) { return shapes.get((depth - 1) % shapes.size()); }
 
-    public int size(){
-        return shapes.size();
-    }
+    public int size() { return shapes.size(); }
 
-    public List<String> shapeNames(){
+    public List<String> shapeNames() {
         List<String> names = new ArrayList<>();
-        for(LevelGenerator g : shapes){
+        for (LevelGenerator g : shapes) {
             names.add(g.shapeName());
         }
         return names;

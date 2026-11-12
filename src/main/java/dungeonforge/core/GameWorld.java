@@ -45,8 +45,8 @@ public class GameWorld {
     private final Player player;
     private final MonsterFactory monsterFactory = new MonsterFactory();
     private final ThemeRegistry themes = new ThemeRegistry(monsterFactory);
-    private final List<DungeonLevel> levels = new ArrayList<>();
     private final GeneratorRegistry generators = new GeneratorRegistry();
+    private final List<DungeonLevel> levels = new ArrayList<>();
 
     public GameWorld(Player player) {
         this.player = player;
@@ -72,11 +72,7 @@ public class GameWorld {
         linkLevelsTogether();
     }
 
-
-
     // =====================================================================================
-
-
 
     /** The stairs between levels. The last room of each level leads down to the next. */
     private void linkLevelsTogether() {
