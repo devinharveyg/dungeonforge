@@ -1,3 +1,8 @@
+---
+title: DungeonForge Week 10 - UML grouped by Design Pattern (green = new or changed this week)
+config:
+  layout: elk
+---
 classDiagram
 direction TB
 
@@ -40,8 +45,9 @@ namespace Domain_Core {
         -monsters List~Monster~
         -floorItems List~Item~
         -chest Chest
-        -exits Map
+        -exits Map~String, Room~
         +link(String, Room)
+        +getExit(String) Room
     }
     class DungeonLevel {
         -depth
@@ -50,8 +56,9 @@ namespace Domain_Core {
     }
     class GameWorld {
         -levels List~DungeonLevel~
+        -generators GeneratorRegistry
         -generate()
-        -linkRooms()
+        -linkLevelsTogether()
         -populatorFor(ThemeKit, boolean) RoomPopulator
     }
     class Combat {
@@ -59,6 +66,13 @@ namespace Domain_Core {
         +playerStrikes(Player, Monster)
         -monsterActs(Monster, Player, Room)
         +restAfterRoom(Player)$
+    }
+    class DungeonReport {
+        <<diagnostic>>
+        +of(GameWorld) String$
+        +countOrphans(DungeonLevel) int$
+        +stairsReachable(DungeonLevel) boolean$
+        -reachableWithin(DungeonLevel) Set~Room~$
     }
     class Main {
         +main(String[])$
@@ -72,7 +86,7 @@ namespace Domain_Items {
     class Item {
         <<interface>>
         +getName() String
-        +getWeight() double:
+        +getWeight() double
         +getValue() int
         +describe() String
     }
@@ -151,12 +165,12 @@ namespace Pattern_AbstractFactory {
     }
 }
 
-%% ======================= FACTORY METHOD + TEMPLATE METHOD =======================
+%% ======================= FACTORY METHOD + TEMPLATE METHOD (rooms) =======================
 namespace Pattern_FactoryMethod {
     class RoomPopulator {
         <<abstract>>
         #theme ThemeKit
-        +populate(Room, int)$ final
+        +populate(Room, int) final
         #createEncounter(int)* List~Monster~
         #createChest(int) Chest
         +kind()* String
@@ -164,6 +178,45 @@ namespace Pattern_FactoryMethod {
     class StandardRoomPopulator
     class TreasureRoomPopulator
     class BossRoomPopulator
+}
+
+%% ======================= TEMPLATE METHOD (level generation) - NEW WEEK 10 =======================
+namespace Pattern_TemplateMethod_LevelGen {
+    class LevelGenerator {
+        <<abstract template>>
+        #DIRECTIONS String[]$
+        +generate(int, ThemeKit, int, boolean) DungeonLevel final
+        #connectRooms(DungeonLevel)* void
+        +shapeName()* String
+        #addShortcuts(DungeonLevel) hook
+        #decorate(DungeonLevel, ThemeKit) hook
+        -createRooms()
+        -markEntrance()
+        -populateRooms()
+        -enforceReachability()
+        #connect(Room, String, Room)$
+        #tryConnect(Room, String, Room) boolean
+        #opposite(String)$ String
+    }
+    class CorridorGenerator {
+        #connectRooms(DungeonLevel)* void
+    }
+    class CaveGenerator {
+        #connectRooms(DungeonLevel)* void
+        -attachToSomeEarlierRoom()
+        #addShortcuts(DungeonLevel)
+    }
+    class RingGenerator {
+        #connectRooms(DungeonLevel)* void
+    }
+    class SpokeGenerator {
+        #connectRooms(DungeonLevel)* void
+    }
+    class GeneratorRegistry {
+        -shapes List~LevelGenerator~
+        +forDepth(int) LevelGenerator
+        +shapeNames() List~String~
+    }
 }
 
 %% ======================= STRATEGY =======================
@@ -177,10 +230,7 @@ namespace Pattern_Strategy {
     class SkittishStrategy
     class RangedStrategy
     class HealerStrategy
-    class RedCoatStrategy {
-        -threshold 0.95
-        note: not registered in strategyFor
-    }
+    class RedCoatStrategy
     class Action {
         +Type ATTACK/RANGED_ATTACK/FLEE/HEAL_ALLY/WAIT
         -target Entity
@@ -252,9 +302,7 @@ namespace Pattern_Observer {
     class QuestTracker
     class AchievementSystem
     class CombatLog
-    class DamageMeter {
-        note: never subscribed in Main
-    }
+    class DamageMeter
     class ConsolePrinter {
         Main inner class
     }
@@ -279,13 +327,16 @@ namespace Pattern_Command {
         #doExecute()* boolean
         +undo()
     }
-    class MoveCommand
+    class MoveCommand {
+        north south east west down
+    }
     class AttackCommand
     class TakeCommand
     class DropCommand
     class UseItemCommand
     class EquipCommand
     class EnchantCommand
+    class DisenchantCommand
     class SimpleCommand {
         read-only commands
     }
@@ -332,6 +383,7 @@ namespace Pattern_Decorator {
         <<interface>>
         +getDamage() int
         +lifesteal() int
+        +peel() Weapon
     }
     class BasicWeapon {
         <<concrete component>>
@@ -341,6 +393,7 @@ namespace Pattern_Decorator {
         #wrapped Weapon
         #prefix()* String
         #valueBonus()* int
+        +peel() Weapon
     }
     class FlamingWeapon
     class FrostWeapon
@@ -372,18 +425,22 @@ Item <|.. Treasure
 Item <|.. Hourglass
 Main ..> GameContext
 Main ..> CommandParser
+Main ..> DungeonReport : --report flag
 GameWorld ..> MonsterFactory
 GameWorld ..> ThemeRegistry
 Combat ..> EventBus
+DungeonReport ..> GameWorld : inspects
+DungeonReport ..> DungeonLevel : inspects
 
 %% --- Singleton ---
 MonsterFactory ..> GameConfig : reads
 CryptThemeKit ..> RandomSource
-GameWorld ..> RandomSource
-RangedStrategy ..> RandomSource
-RedCoatStrategy ..> RandomSource
 RandomSource ..> GameConfig : seed
 Player ..> GameConfig
+RangedStrategy ..> RandomSource
+RedCoatStrategy ..> RandomSource
+LevelGenerator ..> RandomSource : rng()
+LevelGenerator ..> GameConfig
 
 %% --- Simple Factory ---
 MonsterFactory o-- MonsterDef
@@ -403,13 +460,25 @@ ForgeThemeKit --> MonsterFactory
 FrostThemeKit --> MonsterFactory
 WinterfellThemeKit --> MonsterFactory
 
-%% --- Factory Method / Template Method ---
+%% --- Factory Method / Template Method (rooms) ---
 RoomPopulator <|-- StandardRoomPopulator
 RoomPopulator <|-- TreasureRoomPopulator
 RoomPopulator <|-- BossRoomPopulator
 RoomPopulator --> ThemeKit : theme
 RoomPopulator ..> Room : populate
-GameWorld ..> RoomPopulator : picks subclass
+
+%% --- Template Method (level generation, NEW) ---
+LevelGenerator <|-- CorridorGenerator
+LevelGenerator <|-- CaveGenerator
+LevelGenerator <|-- RingGenerator
+LevelGenerator <|-- SpokeGenerator
+GeneratorRegistry o-- LevelGenerator
+GameWorld --> GeneratorRegistry
+GameWorld ..> LevelGenerator : generate()
+LevelGenerator ..> DungeonLevel : builds
+LevelGenerator ..> Room : creates and links
+LevelGenerator ..> ThemeKit : theme
+LevelGenerator ..> RoomPopulator : picks subclass and populates
 
 %% --- Strategy ---
 Monster o-- CombatStrategy : HAS-A
@@ -469,6 +538,7 @@ AbstractCommand <|-- DropCommand
 AbstractCommand <|-- UseItemCommand
 AbstractCommand <|-- EquipCommand
 AbstractCommand <|-- EnchantCommand
+AbstractCommand <|-- DisenchantCommand
 MacroCommand o-- Command : children
 CommandParser o-- CommandFactory : registry
 CommandParser ..> Command : parse returns
@@ -498,4 +568,20 @@ WeaponDecorator <|-- VampiricWeapon
 WeaponDecorator <|-- KeenWeapon
 EnchantmentRegistry ..> WeaponDecorator : builds
 EnchantCommand ..> EnchantmentRegistry
+DisenchantCommand ..> Weapon : peel()
 Player o-- Weapon : equipped
+
+%% =============================================================
+%% HIGHLIGHT: new or changed this week
+%% =============================================================
+classDef changed fill:#d9f2d9,stroke:#2e7d32,stroke-width:2px,color:#000
+cssClass "LevelGenerator,CorridorGenerator,CaveGenerator,RingGenerator,SpokeGenerator,GeneratorRegistry,DungeonReport,DisenchantCommand,GameWorld,Weapon,WeaponDecorator,MoveCommand,CommandParser,ExploringState,Main" changed
+
+%% =============================================================
+%% NOTES (things worth a second look)
+%% =============================================================
+note for LevelGenerator "generate() is the template: createRooms, connectRooms, markEntrance, populateRooms, addShortcuts, decorate, enforceReachability. Subclasses only supply the shape. BUG: opposite() has a typo 'ease', so east falls through to default south."
+note for GameWorld "Dead code left behind: private populatorFor() is now unused, because LevelGenerator has its own copy."
+note for WeaponDecorator "peel() replaced unwrap(). Missing closing paren in describe()."
+note for DamageMeter "Never subscribed in Main"
+note for RedCoatStrategy "Not registered in MonsterFactory.strategyFor()"

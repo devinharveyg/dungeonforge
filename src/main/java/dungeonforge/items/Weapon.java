@@ -22,7 +22,5 @@ public interface Weapon extends Item {
      */
     default int lifesteal() { return 0; }
 
-    default Weapon peel(){
-        return this;
-    }
+    default Weapon peel() { return this; }
 }

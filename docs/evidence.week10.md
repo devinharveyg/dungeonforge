@@ -60,84 +60,20 @@ mvn -q exec:java -Dexec.args="--report --seed=7"
 **Paste all three dungeon reports:**
 
 ```
-$ mvn -q exec:java -Dexec.args="--report"
-=========================================
-        D U N G E O N F O R G E
-  A Head First Design Patterns project
-=========================================
-  version 0.10.0   seed 20260818
-
-
-  DUNGEON REPORT
-  ------------------------------------------------------------------
-  LEVEL  THEME         ROOMS  ORPHANS   SPAWN   EXIT
-  ------------------------------------------------------------------
-  1      Crypt             8        0       0    yes
-  2      Forge             8     4 !!       0    yes
-  3      Frost             8        0       0    yes
-  4      Winterfell        8        0       0    n/a
-  ------------------------------------------------------------------
-  orphaned rooms: 4   spawn-camped levels: 0   unreachable exits: 0
-  AT LEAST ONE LEVEL IS BROKEN. Which builder produced it, and what did it skip?
-
-
-
-$ mvn -q exec:java -Dexec.args="--report --seed=3"
-=========================================
-        D U N G E O N F O R G E
-  A Head First Design Patterns project
-=========================================
-  version 0.10.0   seed 3
-
-
-  DUNGEON REPORT
-  ------------------------------------------------------------------
-  LEVEL  THEME         ROOMS  ORPHANS   SPAWN   EXIT
-  ------------------------------------------------------------------
-  1      Crypt             8        0       0    yes
-  2      Forge             8     4 !!       0    yes
-  3      Frost             8        0    1 !!    yes
-  4      Winterfell        8        0       0    n/a
-  ------------------------------------------------------------------
-  orphaned rooms: 4   spawn-camped levels: 1   unreachable exits: 0
-  AT LEAST ONE LEVEL IS BROKEN. Which builder produced it, and what did it skip?
-
-
-$ mvn -q exec:java -Dexec.args="--report --seed=7"
-=========================================
-        D U N G E O N F O R G E
-  A Head First Design Patterns project
-=========================================
-  version 0.10.0   seed 7
-
-
-  DUNGEON REPORT
-  ------------------------------------------------------------------
-  LEVEL  THEME         ROOMS  ORPHANS   SPAWN   EXIT
-  ------------------------------------------------------------------
-  1      Crypt             8        0       0    yes
-  2      Forge             8     5 !!       0  NO !!
-  3      Frost             8        0       0    yes
-  4      Winterfell        8        0       0    n/a
-  ------------------------------------------------------------------
-  orphaned rooms: 5   spawn-camped levels: 0   unreachable exits: 1
-  AT LEAST ONE LEVEL IS BROKEN. Which builder produced it, and what did it skip?
-
 
 ```
 
 **How many of the four levels satisfy every invariant, on each seed?**
-default: ______   seed 3: __2___   seed 7: __3___
+default: ______   seed 3: ______   seed 7: ______
 
 **Seed 7 shows a symptom the other two do not.** Look at the EXIT column. What does it mean for
 a player who reaches that level?
 
-The code for room creation caused a bug that resulted in the forge level becoming soft-locked or impossible to complete.   
 
 **Now put the test count and the default-seed result in one sentence.** *(This is the most
 important sentence you will write this week. Two points.)*
 
-The seed used in nvm test does not find a bug that occasionally causes levels to become impossible to complete.  
+> ____________________________________________________________________
 
 **The three reports disagree. Why?** *(Look at what decides whether a room gets monsters. Then say
 what that implies about how long a bug like this can survive.)*
@@ -160,8 +96,8 @@ them side by side in two editor windows.
 | 1. create the rooms | | | |
 | 2. connect them | own shape | own shape | own shape |
 | 3. entrance flavour | | | |
-| 4. populate — **which index does the loop start at?** |1 |1 |0 |
-| 5. prune unreachable rooms |y |n |y |
+| 4. populate — **which index does the loop start at?** | | | |
+| 5. prune unreachable rooms | | | |
 
 **Which step is genuinely different between the three?** ______
 
@@ -178,7 +114,6 @@ them side by side in two editor windows.
 **Neither of these is a typo. Both are what happens when one algorithm exists in three copies. In
 one sentence: why did the compiler not help?**
 
-The compiler does not check for errors in the logic of the code.  
 
 **A faster way to find this class of bug, which you should keep:**
 
@@ -188,15 +123,6 @@ grep -n 'for (int r = [01]; r < rooms.size(); r++)' src/main/java/dungeonforge/c
 
 **Paste the output. What does the pattern of 0s and 1s tell you?**
 
-```
-$ grep -n 'for (int r = [01]; r < rooms.size(); r++)' src/main/java/dungeonforge/core/GameWorld.java
-96:        for (int r = 1; r < rooms.size(); r++) {
-120:        for (int r = 1; r < rooms.size(); r++) {
-133:        for (int r = 1; r < rooms.size(); r++) {
-180:        for (int r = 0; r < rooms.size(); r++) {
-
-```
-buildRingLevel() does not have the correct starting index.  
 
 ---
 
@@ -212,12 +138,12 @@ grep -c 'switch (d % ' src/main/java/dungeonforge/core/GameWorld.java
 
 | | Before | After |
 |---|---|---|
-| `GameWorld.java` lines | 269| |
-| times room creation is written | 3| |
-| times entrance flavour is written | 3| |
-| times the populate loop is written | 4| |
-| `switch` statements over level shape |1 | |
-| levels satisfying every invariant (seed 3) |2 of 4 | |
+| `GameWorld.java` lines |269 |128 |
+| times room creation is written |3 |1 |
+| times entrance flavour is written |3 |1 |
+| times the populate loop is written |4 |1 |
+| `switch` statements over level shape |1 |0 |
+| levels satisfying every invariant (seed 3) |2 of 4 |YES |
 
 *(Fill the After column at the end of the sprint. Nothing in it may be a guess.)*
 
@@ -228,17 +154,18 @@ grep -c 'switch (d % ' src/main/java/dungeonforge/core/GameWorld.java
 **Paste `git diff --stat HEAD~1` for the commit that added the fourth shape:**
 
 ```
-$ git diff --stat HEAD~1
- .../dungeonforge/generate/GeneratorRegistry.java   |  1 +
- .../java/dungeonforge/generate/SpokeGenerator.java | 31 ++++++++++++++++++++++
- 2 files changed, 32 insertions(+)
-
+git diff --stat HEAD~1
+ docs/evidence.week10.md                                    | 10 +++++++++-
+ src/main/java/dungeonforge/generate/GeneratorRegistry.java |  1 +
+ src/main/java/dungeonforge/generate/SpokeGenerator.java    | 33 +++++++++++++++++++++++++++++++++
+ 3 files changed, 43 insertions(+), 1 deletion(-)
 ```
 
-**New files:** __1___  **Modified files:** ___1__  **Lines added:** __34___
+**New files:** __1____  **Modified files:** ___1___  **Lines added:** __34 total____
 
-**Is `GameWorld.java` in that diff?** __no__ **Why not?**
-The template pattern removed the room generation from GameWorld.java.  
+**Is `GameWorld.java` in that diff?** __NO____ **Why not?**
+
+Because we moved what varied, and the invariant methods out into a Template Method.
 
 ### The other half of the receipt — what the old design would have cost
 
@@ -274,11 +201,16 @@ Your fourth shape produces levels with no orphaned rooms and an empty entrance.
 
 **Find the reachability check in `SpokeGenerator.java`.** Where is it? ______
 
+Reachability is in the Abstract base class, and we didn't have to implement it in Spoke because it was an inherited invariant.
+
 **Find the entrance guard in `SpokeGenerator.java`.** Where is it? ______
+
+Entrance guard is in the Abstract base class, and we didn't have to implement it in Spoke because it was an inherited invariant.
 
 **In two or three sentences: explain how a class can satisfy an invariant it does not implement,
 and what had to be true of `generate()` for that to work.**
 
+It satisfies these invariants through inheriting the template method from the baseclass. That method had to be final and the invariant operations had to be private, so the subclass couldn't modify them, to gurantee the invariant.
 
 ---
 
