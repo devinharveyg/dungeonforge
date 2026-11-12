@@ -16,6 +16,7 @@ import dungeonforge.core.Room;
 import dungeonforge.events.AchievementSystem;
 import dungeonforge.events.EventBus;
 import dungeonforge.events.QuestTracker;
+import dungeonforge.factory.MonsterFactory;
 import dungeonforge.items.Hourglass;
 import dungeonforge.items.Potion;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,13 +32,14 @@ class CommandTest {
     private CommandHistory history;
     private Player player;
 
+    private MonsterFactory monsterFactory = new MonsterFactory();
     @BeforeEach
     void setUp() {
         GameConfig.resetForTests();
         RandomSource.resetForTests();
 
         player = new Player("Tester");
-        GameWorld world = new GameWorld(player);
+        GameWorld world = new GameWorld(player, new MonsterFactory());
         EventBus bus = new EventBus();
         QuestTracker quests = new QuestTracker(bus);
         AchievementSystem achievements = new AchievementSystem(bus);
@@ -279,9 +281,9 @@ class CommandTest {
         assertEquals("Crypt", ctx.getWorld().getLevels().get(0).getThemeName(), "Week 4 themes");
 
         RandomSource.getInstance().reseed(5L);
-        int a = new GameWorld(new Player("A")).totalMonsters();
+        int a = new GameWorld(new Player("A"), monsterFactory).totalMonsters();
         RandomSource.getInstance().reseed(5L);
-        int b = new GameWorld(new Player("B")).totalMonsters();
+        int b = new GameWorld(new Player("B"), monsterFactory).totalMonsters();
         assertEquals(a, b, "Week 3 determinism");
     }
 
