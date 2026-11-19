@@ -62,9 +62,14 @@ public class Chest implements Item{
         return this.getValue();
     }
 
+    public int directCount(){
+        return contents.size();
+    }
+
     @Override
     public String describe() {
         return name + " ("+String.format("%.1f", getWeight())+"kg "+getValue()+"g "+
                 contents.size()+" item"+((contents.size() == 1)?"":"s")+")";
     }
+
 }
