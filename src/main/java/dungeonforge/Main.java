@@ -47,7 +47,7 @@ import java.util.List;
  */
 public final class Main {
 
-    public static final String VERSION = "0.12.0";
+    public static final String VERSION = "0.13.0";
 
     private Main() { }
 
@@ -76,50 +76,38 @@ public final class Main {
         System.out.println("  version " + VERSION + "   seed " + RandomSource.getInstance().getSeed());
         System.out.println();
 
-
-
-
         if (report) {
             System.out.println(DungeonReport.of(GameSession.buildWorldOnly(name)));
             return;
         }
 
         GameSession session = GameSession.start(name, new ConsolePrinter());
-        for(String note : session.sourceReport()) System.out.println(" [sources] "+note);
-
+        for (String note : session.sourceReport()) System.out.println(" [sources] " + note);
 
         if (script != null) {
             for (String line : Files.readAllLines(Path.of(script))) {
-
                 if (line.isBlank() || line.startsWith("#")) continue;
-                if(!session.isRunning()) break;
+                if (!session.isRunning()) break;
                 System.out.println("\n[script] > " + line);
                 session.runLine(line);
             }
         } else {
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(System.in, StandardCharsets.UTF_8));
             while (session.isRunning()) {
                 session.prompt();
                 System.out.flush();
-
                 String line;
                 try { line = in.readLine(); } catch (Exception e) { break; }
                 if (line == null) break;
                 System.out.println();
                 session.runLine(line);
-
             }
         }
 
         System.out.println();
         System.out.println(session.epilogue());
-
     }
-
-
-
-
 
     /** The console view. It prints; nothing else does. */
     private static final class ConsolePrinter implements GameEventListener {

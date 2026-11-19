@@ -31,15 +31,15 @@ class CommandTest {
     private CommandParser parser;
     private CommandHistory history;
     private Player player;
-
     private MonsterFactory monsterFactory = new MonsterFactory();
+
     @BeforeEach
     void setUp() {
         GameConfig.resetForTests();
         RandomSource.resetForTests();
 
         player = new Player("Tester");
-        GameWorld world = new GameWorld(player, new MonsterFactory());
+        GameWorld world = new GameWorld(player, monsterFactory);
         EventBus bus = new EventBus();
         QuestTracker quests = new QuestTracker(bus);
         AchievementSystem achievements = new AchievementSystem(bus);

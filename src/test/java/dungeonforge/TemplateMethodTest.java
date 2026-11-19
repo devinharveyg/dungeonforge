@@ -30,7 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TemplateMethodTest {
 
     private ThemeKit theme;
-private MonsterFactory factory;
+    private MonsterFactory factory;
+
     @BeforeEach
     void setUp() {
         GameConfig.resetForTests();

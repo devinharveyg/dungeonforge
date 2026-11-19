@@ -33,8 +33,8 @@ class StateTest {
     private CommandParser parser;
     private CommandHistory history;
     private Player player;
-
     private MonsterFactory monsterFactory;
+
     @BeforeEach
     void setUp() {
         GameConfig.resetForTests();
