@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * different claims and only the stronger one proves the constraint holds.
  */
 class SingletonTest {
-
     private final MonsterFactory monsterFactory = new MonsterFactory();
+
     @BeforeEach
     void freshSingletons() {
         // Because singletons are global state, one test can leak into the next. This is the

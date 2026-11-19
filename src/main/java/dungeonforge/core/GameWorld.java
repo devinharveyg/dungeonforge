@@ -11,6 +11,7 @@ import dungeonforge.factory.ThemeRegistry;
 import dungeonforge.factory.TreasureRoomPopulator;
 import dungeonforge.generate.GeneratorRegistry;
 import dungeonforge.generate.LevelGenerator;
+import dungeonforge.items.Item;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -67,7 +68,6 @@ public class GameWorld {
 
         for (int d = 1; d <= dungeonDepth; d++) {
             ThemeKit theme = themes.forDepth(d);
-            DungeonLevel level;
             LevelGenerator shape = generators.forDepth(d);
             levels.add(shape.generate(d, theme, roomsPerLevel, d == dungeonDepth));
         }
@@ -122,7 +122,8 @@ public class GameWorld {
         int n = 0;
         for (DungeonLevel l : levels) {
             for (Room r : l.getRooms()) {
-                if (r.hasChest()) n += r.getChest().getContents().size();
+                for(java.util.Iterator<Item> it = r.contents(); it.hasNext(); it.next()) n++;
+
             }
         }
         return n;

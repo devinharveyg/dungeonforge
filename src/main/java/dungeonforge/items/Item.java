@@ -11,6 +11,14 @@ public interface Item {
     double getWeight();
     int getValue();
 
+    default java.util.Iterator<Item> children(){
+        return java.util.Collections.emptyIterator();
+    }
+
+    default boolean isContainer(){
+        return children().hasNext();
+    }
+
     default String describe() {
         return getName() + " (" + String.format("%.1f", getWeight()) + "kg, " + getValue() + "g)";
     }

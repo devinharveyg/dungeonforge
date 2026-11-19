@@ -27,7 +27,7 @@ public class EnchantmentRegistry {
         return spell.apply(weapon);
     }
 
-    private static String normalize(String enchantment){
+    private static String normalize(String enchantment) {
         return enchantment.toLowerCase().trim();
     }
 
